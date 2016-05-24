@@ -26,7 +26,6 @@ var server;
 
 checkDBfile()
     .then(function () {
-        require("../db/db").openDatabase();
         server = http.createServer(app);
         /**
          * Listen on provided port, on all network interfaces.
