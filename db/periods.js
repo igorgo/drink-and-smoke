@@ -75,12 +75,13 @@ function checkPeriodClosed(id) {
 
 /**
  * Поиск id периода по дате (0 если не найден)
- * @param date
+ * @param {Date} date
+ * @param {boolean} newIfNotExists
  * @returns {Promise<Number|Error>}
  */
-function getPeriodByDate(date) {
+function getPeriodByDate(date, newIfNotExists) {
     return new Promise(function (resolve, reject) {
-        getPeriodByYearAndMonth(date.getFullYear(), date.getMonth() + 1)
+        getPeriodByYearAndMonth(date.getFullYear(), date.getMonth() + 1, newIfNotExists)
             .then(resolve)
             .catch(reject);
     });
@@ -88,11 +89,12 @@ function getPeriodByDate(date) {
 
 /**
  * Поиск id периода по месяцу и году (0 если не найден)
- * @param year
- * @param month
+ * @param {Number} year
+ * @param {Number} month
+ * @param {boolean} [newIfNotExists]
  * @returns {Promise<Number|Error>}
  */
-function getPeriodByYearAndMonth(year, month) {
+function getPeriodByYearAndMonth(year, month, newIfNotExists) {
     return new Promise(function (resolve, reject) {
         db.get(
             [
@@ -112,12 +114,11 @@ function getPeriodByYearAndMonth(year, month) {
                 if (err) reject(err);
                 else {
                     if (row) resolve(row.rowid);
-                    else resolve(0);
-                    /*
-                     else addPeriod(year, month)
-                     .then(resolve)
-                     .catch(reject);
-                     */
+                    else if (newIfNotExists) {
+                        addPeriod(year, month)
+                            .then(resolve)
+                            .catch(reject);
+                    } else resolve(0);
                 }
             }
         );

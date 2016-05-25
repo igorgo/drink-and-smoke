@@ -12,8 +12,8 @@ var cache = require('../cache');
 
 /**
  * Список товаров по категории продукта
- * @param type
- * @returns {Promise}
+ * @param {String} type
+ * @returns {Promise<Array<Object>>}
  */
 function getGoods (type) {
     const SQL_SELECT = "SELECT g.name, g.volume, g.prodtype, p.code as prodcode, p.name as prodname";
@@ -49,7 +49,7 @@ function getGoods (type) {
  * @param name
  * @param volume
  * @param ptype
- * @returns {Promise}
+ * @returns {Promise<Number>}
  */
 function addGood (name,volume,ptype) {
     return new Promise(function (resolve, reject) {

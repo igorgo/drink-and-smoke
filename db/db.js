@@ -4,7 +4,6 @@
 
 var sqlite3 = require("sqlite3").verbose();
 var debug = require('debug')('db:db');
-//var debugModule = require('debug');
 var cache = require("../cache").cache;
 
 var db = new sqlite3.Database('./drink-and-smoke.db', function (err) {
@@ -12,6 +11,14 @@ var db = new sqlite3.Database('./drink-and-smoke.db', function (err) {
     else debug("Database is open");
 });
 
+
+/**
+ * Выполнение запроса с проверкой кэша и сохранением в кэш
+ * @param key
+ * @param sql
+ * @param binds
+ * @returns {Promise<[Object]>}
+ */
 db.allCache = function (key,sql,binds) {
     return new Promise(function (resolve, reject) {
         cache.get(key, function (err, value) {
@@ -37,7 +44,7 @@ db.allCache = function (key,sql,binds) {
 };
 
 /**
- *
+ * База данных
  * @type {sqlite3.Database}
  */
 module.exports = db;
