@@ -36,5 +36,8 @@ db.allCache = function (key,sql,binds) {
     });
 };
 
-
+/**
+ *
+ * @type {sqlite3.Database}
+ */
 module.exports = db;

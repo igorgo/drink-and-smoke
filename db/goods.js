@@ -10,7 +10,11 @@ var debug = require('debug')('db:goods');
 var prodCodes = require("./prodcodes");
 var cache = require('../cache');
 
-
+/**
+ * Список товаров по категории продукта
+ * @param type
+ * @returns {Promise}
+ */
 function getGoods (type) {
     const SQL_SELECT = "SELECT g.name, g.volume, g.prodtype, p.code as prodcode, p.name as prodname";
     const SQL_FROM = "FROM goods g INNER JOIN prodcodes p ON g.prodtype = p.rowid";
@@ -39,13 +43,59 @@ function getGoods (type) {
             .catch(reject);
     });
 }
-module.exports.getGoods = getGoods;
 
+/**
+ * Добавление товара
+ * @param name
+ * @param volume
+ * @param ptype
+ * @returns {Promise}
+ */
 function addGood (name,volume,ptype) {
     return new Promise(function (resolve, reject) {
         debug("Adding a new good (NAME: %s, VOLUME: %s, type: %d", name, volume, ptype);
-        // todo: добавление товара
+        db.run(
+            "INSERT INTO goods (name, volume, prodtype) VALUES ($name,$volume,$ptype)",
+            {
+                $name: name,
+                $volume: volume,
+                $ptype: ptype
+            },
+            function (err) {
+                if (err) reject(err);
+                else resolve(this.lastID);
+            }
+        );
     });
 }
 
+/**
+ * Исправление товара
+ * @param name
+ * @param volume
+ * @param ptype
+ * @param id
+ * @returns {Promise}
+ */
+function modifyGood (name,volume,ptype,id) {
+    return new Promise(function (resolve, reject) {
+        debug("Modifying good (ID:%d, NAME: %s, VOLUME: %s, type: %d", id, name, volume, ptype);
+        db.run(
+            "UPDATE goods SET name=$name, volume=$volume, prodtype=$prodtype WHERE rowid=$id",
+            {
+                $name: name,
+                $volume: volume,
+                $ptype: ptype,
+                $id:id
+            },
+            function (err) {
+                if (err) reject(err);
+                else resolve();
+            }
+        );
+    });
+}
+
+module.exports.getGoods = getGoods;
 module.exports.addGood = addGood;
+module.exports.modifyGood = modifyGood;
