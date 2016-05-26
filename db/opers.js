@@ -23,6 +23,14 @@ var periods = require("./periods");
  */
 
 /**
+ * @typedef {Object} CodesSubTotals
+ * @property {Number} prod_id
+ * @property {String} prod_code
+ * @property {String} prod_name
+ * @property {Number} sub_quant
+ */
+
+/**
  * Добавление прихода
  * @param date
  * @param good
@@ -180,7 +188,7 @@ function getTotalOpersByGoodsOnPeriod(period, opertype, prodtype) {
         db.all(
             "SELECT o.good AS good_id, g.name AS good_name, sum(o.quant) AS sub_quant " +
             "  FROM opers o " +
-            "    INNER JOIN goods g on o.good=g.rowid " +
+            "    INNER JOIN goods g on o.good = g.rowid " +
             "    INNER JOIN prodcodes p on g.prodtype = p.rowid " +
             "  WHERE o.period=$period AND o.type=$opertype AND p.ptype=$prodtype " +
             "  GROUP BY o.good, g.name",
@@ -189,13 +197,106 @@ function getTotalOpersByGoodsOnPeriod(period, opertype, prodtype) {
                 $opertype: opertype,
                 $prodtype: prodtype
             },
-            function (err, rows){
+            function (err, rows) {
                 if (err) reject(err);
                 else resolve(rows);
             }
         );
     });
 }
+
+/**
+ * Сравнение двух строк оборотов
+ * @param {CodesSubTotals} a
+ * @param {CodesSubTotals} b
+ */
+function _sortByCode(a,b) {
+    return a.prod_code.localeCompare(b.prod_code);
+}
+
+/**
+ * Считывание операций за период с группировкой по основным коду продукта (количество в литрах/штуках)
+ * @param period
+ * @param opertype -- тип операции (приход/расход)
+ * @param prodtype -- тип продукта (сигареты/бухло)
+ * @returns {Promise<CodesSubTotals[]>}
+ */
+function getTotalOpersByCodesOnPeriod(period, opertype, prodtype) {
+    return new Promise(function (resolve, reject) {
+        var codesSubTotals;
+        getTotalOpersByMainCodesOnPeriod(period, opertype, prodtype)
+            .then(function (rows) {
+                codesSubTotals = rows;
+                return getTotalOpersBySubCodesOnPeriod(period, opertype, prodtype);
+            })
+            .then(function (rows) {
+                codesSubTotals = codesSubTotals.concat(rows);
+                codesSubTotals.sort(_sortByCode);
+                resolve(codesSubTotals);
+            })
+            .catch(reject);
+    });
+}
+
+/**
+ * Считывание операций за период с группировкой по основным коду продукта (количество в литрах/штуках)
+ * @param period
+ * @param opertype -- тип операции (приход/расход)
+ * @param prodtype -- тип продукта (сигареты/бухло)
+ * @returns {Promise<CodesSubTotals[]>}
+ */
+function getTotalOpersByMainCodesOnPeriod(period, opertype, prodtype) {
+    return new Promise(function (resolve, reject) {
+        db.all(
+            "SELECT p.rowid AS prod_id, p.code AS prod_code, p.name AS prod_name, sum(o.quant*g.volume) AS sub_quant " +
+            "  FROM opers o " +
+            "    INNER JOIN goods g on o.good = g.rowid " +
+            "    INNER JOIN prodcodes p on g.prodtype = p.rowid " +
+            "  WHERE o.period=$period AND o.type=$opertype AND p.ptype=$prodtype " +
+            "  GROUP BY p.rowid, p.code, p.name",
+            {
+                $period: period,
+                $opertype: opertype,
+                $prodtype: prodtype
+            },
+            function (err, rows) {
+                if (err) reject(err);
+                else resolve(rows);
+            }
+        );
+    });
+}
+
+/**
+ * Считывание операций за период с группировкой по сабкоду продукта (количество в литрах/штуках)
+ * @param period
+ * @param opertype -- тип операции (приход/расход)
+ * @param prodtype -- тип продукта (сигареты/бухло)
+ * @returns {Promise<CodesSubTotals[]>}
+ */
+function getTotalOpersBySubCodesOnPeriod(period, opertype, prodtype) {
+    return new Promise(function (resolve, reject) {
+        db.all(
+            "SELECT p.rowid AS prod_id, p.subcode AS prod_code, p.name AS prod_name, sum(o.quant*g.volume) AS sub_quant " +
+            "  FROM opers o " +
+            "    INNER JOIN goods g on o.good = g.rowid " +
+            "    INNER JOIN prodcodes p on g.prodtype = p.rowid " +
+            "  WHERE o.period=$period AND o.type=$opertype AND p.ptype=$prodtype AND p.subcode IS NOT NULL " +
+            "  GROUP BY p.rowid, p.subcode, p.name",
+            {
+                $period: period,
+                $opertype: opertype,
+                $prodtype: prodtype
+            },
+            function (err, rows) {
+                if (err) reject(err);
+                else resolve(rows);
+            }
+        );
+    });
+}
+
+
 
 // todo: Считывание операций за период с группировкой по коду продукта (количество в литрах/штуках)
 // todo: Считывание операций за период с группировкой по сабкоду продукта (количество в литрах/штуках) (в названии добавить "у тому числі ")
@@ -206,3 +307,4 @@ module.exports.addOutcome = addOutcome;
 module.exports.deleteOper = deleteOper;
 module.exports.modifyOper = modifyOper;
 module.exports.getTotalOpersByGoodsOnPeriod = getTotalOpersByGoodsOnPeriod;
+module.exports.getTotalOpersByCodesOnPeriod = getTotalOpersByCodesOnPeriod;
