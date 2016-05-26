@@ -3,7 +3,7 @@
  */
 /**
  * TABLE: prodcodes
- * COLUMNS: [rowid, code, code_zed, name, included->prodcodes.rowid, ptype]
+ * COLUMNS: [rowid, code, subcode, code_zed, name, ptype]
  */
 
 var db = require("./db");
@@ -16,9 +16,9 @@ const TOBACCO_TYPE = "T";
 
 function getProdCodes(type) {
     return new Promise(function (resolve, reject) {
-        const SQL_SELECT = "SELECT rowid, code, name FROM prodcodes";
+        const SQL_SELECT = "SELECT rowid, coalesce(subcode,code) as code, name FROM prodcodes";
         const SQL_WHERE = "WHERE ptype = $ptype";
-        const SQL_ORDER = "ORDER BY code";
+        const SQL_ORDER = "ORDER BY code, subcode";
         var cacheName = cache.PROD_CODES.ALL;
         var sql = [SQL_SELECT];
         var binds = {};

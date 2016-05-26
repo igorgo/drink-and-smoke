@@ -16,6 +16,13 @@ var periods = require("./periods");
  */
 
 /**
+ * @typedef {Object} GoodsSubTotals
+ * @property {Number} good_id
+ * @property {String} good_name
+ * @property {Number} sub_quant
+ */
+
+/**
  * Добавление прихода
  * @param date
  * @param good
@@ -137,7 +144,7 @@ function modifyOper(id, date, good, quant) {
             })
             .then(function (isClosed) {
                 if (isClosed) reject(new Error("Исправление операции в закрытом периоде невозможно."));
-                else return periods.getPeriodByDate(date,true);
+                else return periods.getPeriodByDate(date, true);
             })
             .then(periods.checkPeriodOpen)
             .then(function (isClosed) {
@@ -161,10 +168,41 @@ function modifyOper(id, date, good, quant) {
     });
 }
 
-//todo: считывание операций расхода за период (группировка по товару)
-//todo: считывание операций прихода за период (группировка по товару)
+/**
+ * Cчитывание операций за период c группировкой по товару
+ * @param period
+ * @param opertype -- тип операции (приход/расход)
+ * @param prodtype -- тип продукта (сигареты/бухло)
+ * @returns {Promise<GoodsSubTotals[]>}
+ */
+function getTotalOpersByGoodsOnPeriod(period, opertype, prodtype) {
+    return new Promise(function (resolve, reject) {
+        db.all(
+            "SELECT o.good AS good_id, g.name AS good_name, sum(o.quant) AS sub_quant " +
+            "  FROM opers o " +
+            "    INNER JOIN goods g on o.good=g.rowid " +
+            "    INNER JOIN prodcodes p on g.prodtype = p.rowid " +
+            "  WHERE o.period=$period AND o.type=$opertype AND p.ptype=$prodtype " +
+            "  GROUP BY o.good, g.name",
+            {
+                $period: period,
+                $opertype: opertype,
+                $prodtype: prodtype
+            },
+            function (err, rows){
+                if (err) reject(err);
+                else resolve(rows);
+            }
+        );
+    });
+}
+
+// todo: Считывание операций за период с группировкой по коду продукта (количество в литрах/штуках)
+// todo: Считывание операций за период с группировкой по сабкоду продукта (количество в литрах/штуках) (в названии добавить "у тому числі ")
+
 
 module.exports.addIncome = addIncome;
 module.exports.addOutcome = addOutcome;
 module.exports.deleteOper = deleteOper;
 module.exports.modifyOper = modifyOper;
+module.exports.getTotalOpersByGoodsOnPeriod = getTotalOpersByGoodsOnPeriod;
