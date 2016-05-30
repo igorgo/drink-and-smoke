@@ -1,8 +1,45 @@
+
 body {
-  padding: 50px;
-  font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+  text-shadow: 2px 2px 8px #0f0f0f;
 }
 
-a {
-  color: #00B7FF;
+
+.modal-content {
+    background-color: #eee;
+    border: 2px solid #555;
+    color: #444;
+    text-shadow: 2px 2px 8px #efefef;
 }
+
+.modal-header .close {
+    opacity: .8;
+    color: #333;
+}
+
+.btn.pull-right {
+    margin-left: 8px;
+}
+
+.fa.rt {
+    margin-right: 4px;
+}
+
+.fa.lt {
+    margin-left: 4px;
+}
+
+section#income {
+     background: url(../img/income-bg.jpg) no-repeat bottom center scroll;
+    background-size: cover;
+    min-height: 100%;
+    /*background-color: rgba(30, 66, 130, 0.86);*/
+     border-radius: 10px;
+ }
+
+section#outcome {
+    background: url(../img/outcome-bg.jpg) no-repeat bottom center scroll;
+    background-size: cover;
+    min-height: 100%;
+     /*background-color: rgba(30, 66, 130, 0.86);*/
+ }
+

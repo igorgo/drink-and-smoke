@@ -1,0 +1,32 @@
+section#income.content-section.text-center
+    .row
+        .col-lg-8.col-lg-offset-2
+            h2 Приход
+    #income-form.row.form-horizontal
+        .col-lg-10.col-lg-offset-1
+            .row
+                .form-group.col-lg-6
+                    label.control-label.col-lg-2.col-lg-offset-7(for="income-date") Дата
+                    .col-lg-3
+                        input#income-date.form-control.input-sm(type="date" required)
+                .col-lg-2
+                    //a#income-form-button-new-good.btn.btn-success.btn-sm.add-good-button(href='javascript:void(0)', title="Добавить недостающий в списке товар")
+                        span.fa.fa-plus-circle(aria-hidden="true")
+                        span Новый товар
+            .row
+                .col-lg-8
+                    .form-group
+                        label.control-label.col-lg-3(for="income-good-name") Товар
+                        .col-lg-9
+                            select#income-good-name.form-control.good-combo(required)
+                            a#income-form-button-new-good.btn.btn-success.btn-sm.add-good-button(href='javascript:void(0)', title="Добавить недостающий в списке товар")
+                                span.fa.fa-plus-circle(aria-hidden="true")
+                .col-lg-2
+                    .form-group
+                        label.control-label.col-lg-4(for="income-good-quant") Кол-во
+                        .col-lg-8
+                            input#income-good-quant.form-control(type="number" step="1" required)
+                .col-lg-2
+                    a#income-button-add-good.btn.btn-primary.btn-sm(href='javascript:void(0)', style="margin-left:8px")
+                        span.fa.fa-check-circle-o.rt(aria-hidden="true", style="margin-right:8px")
+                        span Добавить позицию

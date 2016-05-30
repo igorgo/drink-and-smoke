@@ -1,0 +1,40 @@
+#good-edit-dialog.modal.fade(tabindex="-1", role="dialog", aria-labelledby="good-edit-dialog-title", aria-hidden="true")
+    .modal-dialog.modal-lg
+        #good-edit-form.modal-content
+            .modal-header
+                button.close(type="button", data-dismiss="modal", aria-hidden="true") &times;
+                h4#good-edit-dialog-title.modal-title Добавление товара
+            .modal-body.form-horizontal
+                .row
+                    .col-lg-3
+                        label.radio-inline
+                            input(name="good-edit-type", type="radio", value="A" checked=true)
+                            strong Алкоголь
+                        label.radio-inline
+                            input(name="good-edit-type",type="radio",value="T")
+                            strong Табак
+                    .col-lg-9
+                        .form-group
+                            label.control-label.col-lg-3(for="good-edit-code") Вид продукции
+                            .col-lg-9
+                                select#good-edit-code.form-control.prodcode-combo(required)
+                .row
+                    .col-lg-9
+                        .form-group
+                            label.control-label.col-lg-2(for="good-edit-name") Наименование
+                            .col-lg-10
+                                input#good-edit-name.form-control(type="text" required)
+                    .col-lg-3
+                        .form-group
+                            label.control-label.col-lg-4(for="good-edit-volume") Объем
+                            .col-lg-8
+                                input#good-edit-volume.form-control(type="number" step="0.01" required)
+            .modal-footer
+                .row
+                    .col-lg-12
+                        a#good-edit-cancel.btn.btn-primary.pull-right(href='javascript:void(0)')
+                            i.fa.fa-ban.rt
+                            span Отмена
+                        a#good-edit-ok.btn.btn-primary.pull-right(href='javascript:void(0)')
+                            i.fa.fa-check-circle-o.rt
+                            span ОК

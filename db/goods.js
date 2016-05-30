@@ -22,17 +22,17 @@ function getGoods (type) {
     const SQL_ORDER = "ORDER BY g.name, g.volume";
     var sql = [SQL_SELECT, SQL_FROM],
         binds = {},
-        cacheName = cashe.GOODS.ALL;
+        cacheName = cache.GOODS.ALL;
     switch (type) {
         case prodCodes.ALCOHOL_TYPE :
             sql.push(SQL_WHERE);
             binds = {$type: prodCodes.ALCOHOL_TYPE};
-            cacheName = cashe.GOODS.ALCOHOL;
+            cacheName = cache.GOODS.ALCOHOL;
             break;
         case prodCodes.TOBACCO_TYPE :
             sql.push(SQL_WHERE);
             binds = {$type: prodCodes.TOBACCO_TYPE};
-            cacheName = cashe.GOODS.TOBACCO;
+            cacheName = cache.GOODS.TOBACCO;
             break;
     }
     sql.push(SQL_ORDER);
@@ -63,7 +63,13 @@ function addGood (name,volume,ptype) {
             },
             function (err) {
                 if (err) reject(err);
-                else resolve(this.lastID);
+                else {
+                    cache.clearGoods()
+                        .then(function () {
+                            resolve(this.lastID);
+                        })
+                        .catch(reject);
+                }
             }
         );
     });
@@ -90,7 +96,9 @@ function modifyGood (name,volume,ptype,id) {
             },
             function (err) {
                 if (err) reject(err);
-                else resolve();
+                else cache.clearGoods()
+                    .then(resolve)
+                    .catch(reject);
             }
         );
     });

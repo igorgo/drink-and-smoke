@@ -1,5 +1,39 @@
 extends layout
 
 block content
-  h1= title
-  p Welcome to #{title}
+    nav.navbar.navbar-custom.navbar-fixed-top(role="navigation")
+        .container
+            .navbar-header
+                button.navbar-toggle(type="button", data-toggle="collapse", data-target=".navbar-main-collapse")
+                    i.fa.fa-bars
+                a.navbar-brand.page-scroll(href="#page-top")
+                    i.fa.fa-glass.animated
+                    span &nbsp;Бухло
+                    span.light &nbsp;и&nbsp;
+                    i.fa.fa-leaf.animated
+                    span &nbsp;Курево
+            .collapse.navbar-collapse.navbar-right.navbar-main-collapse
+                ul.nav.navbar-nav
+                    li
+                        a.hidden.active(href="#page-top")
+                    li
+                        a.page-scroll(href="#income") Приход
+                    li
+                        a.page-scroll(href="#outcome") Расход
+                    li
+                        a.page-scroll(href="#turns") Обороты
+    header.intro
+        .intro-body
+            .container
+                .row
+                    .col-md-8.col-md-offset-2
+                        h1.brand-heading Бухло и Курево
+                        p.intro-text Засіб для складання звітів про обсяги придбання та реалізації алкогольних напоїв та тютюнових виробів у роздрібній мережі
+                        a.btn.btn-circle.page-scroll(href="#income")
+                            i.fa.fa-angle-double-down.animated
+    include income
+    include outcome
+    include turns
+    footer
+        .container.text-center
+            p Copyright © igor-go 2016
