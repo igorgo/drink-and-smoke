@@ -1,0 +1,50 @@
+/* font-family: "GothamProRegular"; */
+@font-face {
+    font-family: "GothamProRegular";
+    src: url("../fonts/GothamProRegular/GothamProRegular.eot");
+    src: url("../fonts/GothamProRegular/GothamProRegular.eot?#iefix")format("embedded-opentype"),
+    url("../fonts/GothamProRegular/GothamProRegular.woff") format("woff"),
+    url("../fonts/GothamProRegular/GothamProRegular.ttf") format("truetype");
+    font-style: normal;
+    font-weight: normal;
+}
+/* font-family: "GothamProBold"; */
+@font-face {
+    font-family: "GothamProBold";
+    src: url("../fonts/GothamProBold/GothamProBold.eot");
+    src: url("../fonts/GothamProBold/GothamProBold.eot?#iefix")format("embedded-opentype"),
+    url("../fonts/GothamProBold/GothamProBold.woff") format("woff"),
+    url("../fonts/GothamProBold/GothamProBold.ttf") format("truetype");
+    font-style: normal;
+    font-weight: normal;
+}
+/* font-family: "ArianAMUSerifRegular"; */
+@font-face {
+    font-family: "ArianAMUSerifRegular";
+    src: url("../fonts/ArianAMUSerifRegular/ArianAMUSerifRegular.eot");
+    src: url("../fonts/ArianAMUSerifRegular/ArianAMUSerifRegular.eot?#iefix")format("embedded-opentype"),
+    url("../fonts/ArianAMUSerifRegular/ArianAMUSerifRegular.woff") format("woff"),
+    url("../fonts/ArianAMUSerifRegular/ArianAMUSerifRegular.ttf") format("truetype");
+    font-style: normal;
+    font-weight: normal;
+}
+/* font-family: "ArianAMUSerifBold"; */
+@font-face {
+    font-family: "ArianAMUSerifBold";
+    src: url("../fonts/ArianAMUSerifBold/ArianAMUSerifBold.eot");
+    src: url("../fonts/ArianAMUSerifBold/ArianAMUSerifBold.eot?#iefix")format("embedded-opentype"),
+    url("../fonts/ArianAMUSerifBold/ArianAMUSerifBold.woff") format("woff"),
+    url("../fonts/ArianAMUSerifBold/ArianAMUSerifBold.ttf") format("truetype");
+    font-style: normal;
+    font-weight: normal;
+}
+/* font-family: "PTMonoRegular"; */
+@font-face {
+    font-family: "PTMonoRegular";
+    src: url("../fonts/PTMonoRegular/PTMonoRegular.eot");
+    src: url("../fonts/PTMonoRegular/PTMonoRegular.eot?#iefix")format("embedded-opentype"),
+    url("../fonts/PTMonoRegular/PTMonoRegular.woff") format("woff"),
+    url("../fonts/PTMonoRegular/PTMonoRegular.ttf") format("truetype");
+    font-style: normal;
+    font-weight: normal;
+}

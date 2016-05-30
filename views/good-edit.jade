@@ -18,20 +18,25 @@
                             label.control-label.col-lg-3(for="good-edit-code") Вид продукции
                             .col-lg-9
                                 select#good-edit-code.form-control.prodcode-combo(required)
+                                .help-block.with-errors
                 .row
                     .col-lg-9
                         .form-group
                             label.control-label.col-lg-2(for="good-edit-name") Наименование
                             .col-lg-10
                                 input#good-edit-name.form-control(type="text" required)
+                                .help-block.with-errors
                     .col-lg-3
                         .form-group
                             label.control-label.col-lg-4(for="good-edit-volume") Объем
                             .col-lg-8
-                                input#good-edit-volume.form-control(type="number" step="0.01" required)
+                                input#good-edit-volume.form-control(type="number" step="0.01" required data-vgzerro="true", data-vgzerro-error="Объем должен быть больше нуля.")
+                                .help-block.with-errors
             .modal-footer
                 .row
-                    .col-lg-12
+                    .col-lg-8
+                        code#good-edit-error
+                    .col-lg-4
                         a#good-edit-cancel.btn.btn-primary.pull-right(href='javascript:void(0)')
                             i.fa.fa-ban.rt
                             span Отмена

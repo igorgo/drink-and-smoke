@@ -21,6 +21,8 @@
     "bootstrap-table": "^1.10.1",
     "font-awesome": "^4.6.3",
     "jquery-easing": "*",
-    "bootstrap-combobox": "^1.1.7"
+    "bootstrap-combobox": "^1.1.7",
+    "roboto-fontface": "^0.4.5",
+    "bootstrap-validator": "^0.10.2"
   }
 }

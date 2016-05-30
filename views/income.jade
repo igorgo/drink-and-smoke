@@ -13,13 +13,14 @@ section#income.content-section.text-center
                     //a#income-form-button-new-good.btn.btn-success.btn-sm.add-good-button(href='javascript:void(0)', title="Добавить недостающий в списке товар")
                         span.fa.fa-plus-circle(aria-hidden="true")
                         span Новый товар
-            .row
+            .row.no-gutter
                 .col-lg-8
-                    .form-group
-                        label.control-label.col-lg-3(for="income-good-name") Товар
+                    .form-group.no-gutter
+                        label.control-label.col-lg-2.pr8(for="income-good-name") Товар
                         .col-lg-9
                             select#income-good-name.form-control.good-combo(required)
-                            a#income-form-button-new-good.btn.btn-success.btn-sm.add-good-button(href='javascript:void(0)', title="Добавить недостающий в списке товар")
+                        .col-lg-1
+                            a#income-form-button-new-good.btn.btn-success.add-good-button.pull-left(href='javascript:void(0)', title="Добавить недостающий в списке товар")
                                 span.fa.fa-plus-circle(aria-hidden="true")
                 .col-lg-2
                     .form-group

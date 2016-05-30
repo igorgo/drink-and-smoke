@@ -21,6 +21,11 @@ function initPageObjects() {
     o.formGood = $("#good-edit-form");
     o.formGood.prodType = o.formGood.find("input:radio[name='good-edit-type']");
     o.formGood.prodCode = o.formGood.find("#good-edit-code");
+    o.formGood.name = o.formGood.find("#good-edit-name");
+    o.formGood.volume = o.formGood.find("#good-edit-volume");
+    o.formGood.ok = o.formGood.find("#good-edit-ok");
+    o.formGood.cancel = o.formGood.find("#good-edit-cancel");
+    o.formGood.error = o.formGood.find("#good-edit-error");
     o.formIncome = $("#income-form");
     o.btnAddGood = $(".add-good-button");
 }
@@ -57,14 +62,17 @@ function initNavigation (){
 
 function bindEvents() {
     initNavigation();
+    o.formGood.prodCode.bind("resetValue", function (event) {
+        var elc = $(this).data('combobox');
+        elc.clearTarget();
+        elc.triggerChange();
+        elc.clearElement();
+    });
     o.formGood.prodCode.bind("fillOptions", function (event) {
         var el= $(this);
         el.find("option").remove().end();
         el.append($("<option></option>"));
-        var elc = el.data('combobox');
-        elc.clearTarget();
-        elc.triggerChange();
-        elc.clearElement();
+        el.trigger("resetValue");
         var vals;
         var prodType = el.data("prodType");
         if (prodType === "A") vals = prodCodesCache.A;
@@ -76,7 +84,7 @@ function bindEvents() {
                 .attr("value", value.rowid)
                 .text(value.code + " - " + value.name));
         });
-        elc.refresh();
+        el.data('combobox').refresh();
     });
     o.formGood.prodType.bind("click", function () {
         var v = $(this).val();
@@ -86,6 +94,49 @@ function bindEvents() {
     o.btnAddGood.bind("click", function () {
         o.modalGood.modal("show");
     });
+    o.modalGood.bind("hidden.bs.modal", function () {
+        o.formGood.validator('destroy');
+        o.formGood.error.text("");
+        o.formGood.prodCode.trigger("resetValue");
+        o.formGood.name.val("");
+        o.formGood.volume.val("0");
+    });
+    o.formGood.cancel.bind("click", function () {
+        o.modalGood.modal('hide');
+    });
+    o.formGood.ok.bind("click", function () {
+        o.formGood.error.text("");
+        o.formGood.validator('destroy');
+        o.formGood.validator({
+            custom: {
+                vgzerro: function ($el) {
+                    if ($el.val()) return $el.val() > 0;
+                    else return true;
+                }
+            },
+            errors: {
+                vgzerro: 'Число должно быть больше нуля'
+            }
+        });
+        o.formGood.validator('validate');
+        if (o.formGood.find(".has-error").length > 0) return false;
+        var data = {
+            code: o.formGood.prodCode.val(),
+            name: o.formGood.name.val(),
+            volume: o.formGood.volume.val()
+        };
+        $.ajax({
+                type: 'PUT',
+                data: data,
+                url: '/data/goods',
+                dataType: 'JSON'
+        }).done(function (resp) {
+            o.modalGood.modal('hide');
+        }).fail(function(resp) {
+            o.formGood.error.text(resp.responseText);
+        });
+
+    })
 }
 
 $(function() {

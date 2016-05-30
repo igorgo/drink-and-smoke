@@ -2,15 +2,14 @@ doctype html
 html
     head
         title Реализация бухла и курева
-        link(type="text/css" rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700")
+        link(rel="stylesheet", href="/bower_components/roboto-fontface/css/roboto-fontface.css")
         link(rel='stylesheet', href='/bower_components/bootstrap/dist/css/bootstrap.min.css')
         link(rel='stylesheet', href='/bower_components/bootstrap-table/dist/bootstrap-table.min.css')
         link(rel='stylesheet', href='/bower_components/font-awesome/css/font-awesome.min.css')
         link(rel='stylesheet', href='/bower_components/bootstrap-combobox/css/bootstrap-combobox.css')
+        link(rel="stylesheet", href="/stylesheets/fonts.css")
         link(rel='stylesheet', href='/stylesheets/grayscale.css')
         link(rel='stylesheet', href='/stylesheets/style.css')
-        link(href="http://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic" rel="stylesheet" type="text/css")
-        link(href="http://fonts.googleapis.com/css?family=Montserrat:400,700" rel="stylesheet" type="text/css")
     body#page-top(data-spy="scroll",data-target=".navbar-fixed-top")
         include good-edit
         block content
@@ -18,5 +17,6 @@ html
         script(src='/bower_components/bootstrap/dist/js/bootstrap.min.js')
         script(src='/bower_components/bootstrap-table/dist/bootstrap-table.min.js')
         script(src='/bower_components/bootstrap-combobox/js/bootstrap-combobox.js')
+        script(src='/bower_components/bootstrap-validator/dist/validator.min.js')
         script(src='/bower_components/jquery-easing/jquery.easing.min.js')
         script(src='/javascripts/global.js')

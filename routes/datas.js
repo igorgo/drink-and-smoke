@@ -23,7 +23,7 @@ router.get('/prodcodes/:type', function (req, res, next) {
         .catch(next);
 });
 
-router.get("/goods/:type",function (req, res, next){
+router.get("/goods/:type", function (req, res, next) {
     debug("/goods/:type");
     var t = (req.params) ? req.params.type : undefined;
     require("../db/goods").getGoods(t.toString())
@@ -32,6 +32,20 @@ router.get("/goods/:type",function (req, res, next){
         })
         .catch(next);
 
+});
+
+router.put("/goods", function (req, res, next) {
+    debug("PUT /goods");
+    require("../db/goods").addGood(
+        req.body.name,
+        req.body.volume,
+        req.body.code
+    ).then(function (row) {
+        res.status(200).json(row);
+    }).catch(function (err) {
+        debug(err);
+        res.status(500).send("Дублирование наименования товара");
+    });
 });
 
 module.exports = router;

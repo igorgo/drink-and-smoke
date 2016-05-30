@@ -43,3 +43,27 @@ section#outcome {
      /*background-color: rgba(30, 66, 130, 0.86);*/
  }
 
+.no-gutter > [class*='col-'] {
+    padding-right:0;
+    padding-left:0;
+}
+
+.pl8 {
+    padding-left: 8px !important;
+}
+
+.pr8 {
+    padding-right: 8px !important;
+}
+
+.form-control{
+    font-family: PTMonoRegular,"Helvetica Neue",Helvetica,Arial,sans-serif;
+}
+.typeahead{
+    font-family: PTMonoRegular,"Helvetica Neue",Helvetica,Arial,sans-serif;
+}
+
+section .form-control{
+    background-color: #524328;
+    color: #FFFBFB;
+}

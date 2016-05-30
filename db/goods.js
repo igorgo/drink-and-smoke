@@ -11,12 +11,22 @@ var prodCodes = require("./prodcodes");
 var cache = require('../cache');
 
 /**
+ * @typedef {Object} GoodRow
+ * @property {Number} id
+ * @property {String} name
+ * @property {Number} volume
+ * @property {Number} prodtype
+ * @property {String} prodcode
+ * @property {String} prodname
+ */
+
+/**
  * Список товаров по категории продукта
  * @param {String} type
- * @returns {Promise<Array<Object>>}
+ * @returns {Promise<GoodRow[]>}
  */
 function getGoods (type) {
-    const SQL_SELECT = "SELECT g.name, g.volume, g.prodtype, p.code as prodcode, p.name as prodname";
+    const SQL_SELECT = "SELECT g.rowid as id, g.name, g.volume, g.prodtype, p.code as prodcode, p.name as prodname";
     const SQL_FROM = "FROM goods g INNER JOIN prodcodes p ON g.prodtype = p.rowid";
     const SQL_WHERE = "WHERE p.ptype = $type";
     const SQL_ORDER = "ORDER BY g.name, g.volume";
@@ -45,11 +55,29 @@ function getGoods (type) {
 }
 
 /**
+ * Считывание товара по id
+ * @param id
+ * @returns {Promise<GoodRow>}
+ */
+function getGood (id) {
+    return new Promise(function (resolve, reject) {
+        const SQL_SELECT = "SELECT g.rowid as id, g.name, g.volume, g.prodtype, p.code as prodcode, p.name as prodname";
+        const SQL_FROM = "FROM goods g INNER JOIN prodcodes p ON g.prodtype = p.rowid";
+        const SQL_WHERE = "WHERE g.rowid = $id";
+        db.get([SQL_SELECT,SQL_FROM,SQL_WHERE].join(" "),{$id:id},function(err,row){
+            if (err) reject(err);
+            resolve(row);
+        });
+    });
+}
+
+
+/**
  * Добавление товара
  * @param name
  * @param volume
  * @param ptype
- * @returns {Promise<Number>}
+ * @returns {Promise<GoodRow>}
  */
 function addGood (name,volume,ptype) {
     return new Promise(function (resolve, reject) {
@@ -64,10 +92,12 @@ function addGood (name,volume,ptype) {
             function (err) {
                 if (err) reject(err);
                 else {
+                    var newId = this.lastID;
                     cache.clearGoods()
-                        .then(function () {
-                            resolve(this.lastID);
+                        .then(function(){
+                            return getGood(newId);
                         })
+                        .then(resolve)
                         .catch(reject);
                 }
             }
