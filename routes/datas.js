@@ -7,8 +7,14 @@ var express = require('express');
 var router = express.Router();
 var debug = require('debug')('drink-and-smoke:router');
 
+var dbGoods = require("../db/goods"),
+    dbOpers = require("../db/opers"),
+    dbPeriods = require("../db/periods"),
+    dbProds = require("../db/prodcodes");
+
+
 router.get('/periods/getbydate/:date', function (req, res, next) {
-    require("../db/periods").getPeriodByDate(new Date(req.params.date))
+    dbPeriods.getPeriodByDate(new Date(req.params.date))
         .then(function (result) {
             res.status(200).json(result)
         })
@@ -16,7 +22,7 @@ router.get('/periods/getbydate/:date', function (req, res, next) {
 });
 
 router.get('/prodcodes/:type', function (req, res, next) {
-    require("../db/prodcodes").getProdCodes(req.params.type)
+    dbProds.getProdCodes(req.params.type)
         .then(function (result) {
             res.status(200).json(result)
         })
@@ -26,7 +32,7 @@ router.get('/prodcodes/:type', function (req, res, next) {
 router.get("/goods/:type", function (req, res, next) {
     debug("/goods/:type");
     var t = (req.params) ? req.params.type : undefined;
-    require("../db/goods").getGoods(t.toString())
+    dbGoods.getGoods(t.toString())
         .then(function (result) {
             res.status(200).json(result)
         })
@@ -34,9 +40,19 @@ router.get("/goods/:type", function (req, res, next) {
 
 });
 
+router.get("/goods", function (req, res, next) {
+    debug("/goods/:type");
+    var t = (req.params) ? req.params.type : undefined;
+    dbGoods.getGoods()
+        .then(function (result) {
+            res.status(200).json(result);
+        })
+        .catch(next);
+});
+
 router.put("/goods", function (req, res, next) {
     debug("PUT /goods");
-    require("../db/goods").addGood(
+    dbGoods.addGood(
         req.body.name,
         req.body.volume,
         req.body.code
@@ -48,4 +64,29 @@ router.put("/goods", function (req, res, next) {
     });
 });
 
+router.get("/operday/:type/:date", function (req, res, next) {
+    var type = req.params.type;
+    var date = new Date(req.params.date);
+    debug("GET /operday/%s/%s",type,date);
+    dbOpers.getOpersByDate(date, type)
+        .then(function (rows) {
+            res.status(200).json(rows);
+        })
+        .catch(next);
+
+});
+
+router.put("/opers/income", function (req, res, next) {
+    debug("PUT data/opers/income");
+    var date = new Date(req.body.date),
+        good = req.body.good,
+        quant = req.body.quant;
+    debug("date : %s\ngood: %i\nquant: %f",date,good,quant);
+    dbOpers.addIncome (date, good, quant)
+        .then(dbOpers.getOperById)
+        .then(function (row) {
+            res.status(200).json(row);
+        })
+        .catch(next);
+});
 module.exports = router;

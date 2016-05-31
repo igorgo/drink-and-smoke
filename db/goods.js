@@ -9,6 +9,8 @@ var db = require("./db");
 var debug = require('debug')('db:goods');
 var prodCodes = require("./prodcodes");
 var cache = require('../cache');
+const SQL_GET_SELECT = "SELECT g.rowid as id, g.name, g.volume, g.prodtype, coalesce(p.subcode,p.code) as prodcode, p.name as prodname";
+const SQL_GET_FROM = "FROM goods g INNER JOIN prodcodes p ON g.prodtype = p.rowid";
 
 /**
  * @typedef {Object} GoodRow
@@ -26,11 +28,9 @@ var cache = require('../cache');
  * @returns {Promise<GoodRow[]>}
  */
 function getGoods (type) {
-    const SQL_SELECT = "SELECT g.rowid as id, g.name, g.volume, g.prodtype, p.code as prodcode, p.name as prodname";
-    const SQL_FROM = "FROM goods g INNER JOIN prodcodes p ON g.prodtype = p.rowid";
     const SQL_WHERE = "WHERE p.ptype = $type";
     const SQL_ORDER = "ORDER BY g.name, g.volume";
-    var sql = [SQL_SELECT, SQL_FROM],
+    var sql = [SQL_GET_SELECT, SQL_GET_FROM],
         binds = {},
         cacheName = cache.GOODS.ALL;
     switch (type) {
@@ -47,7 +47,7 @@ function getGoods (type) {
     }
     sql.push(SQL_ORDER);
     return new Promise(function (resolve, reject) {
-        debug("Querying codes for alcohol");
+        debug("Querying goods");
         db.allCache(cacheName, sql.join(" "), binds)
             .then(resolve)
             .catch(reject);
@@ -61,16 +61,13 @@ function getGoods (type) {
  */
 function getGood (id) {
     return new Promise(function (resolve, reject) {
-        const SQL_SELECT = "SELECT g.rowid as id, g.name, g.volume, g.prodtype, p.code as prodcode, p.name as prodname";
-        const SQL_FROM = "FROM goods g INNER JOIN prodcodes p ON g.prodtype = p.rowid";
         const SQL_WHERE = "WHERE g.rowid = $id";
-        db.get([SQL_SELECT,SQL_FROM,SQL_WHERE].join(" "),{$id:id},function(err,row){
+        db.get([SQL_GET_FROM,SQL_GET_FROM,SQL_WHERE].join(" "),{$id:id},function(err,row){
             if (err) reject(err);
             resolve(row);
         });
     });
 }
-
 
 /**
  * Добавление товара

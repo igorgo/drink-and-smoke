@@ -9,6 +9,7 @@ section#income.content-section.text-center
                     label.control-label.col-lg-2.col-lg-offset-7(for="income-date") Дата
                     .col-lg-3
                         input#income-date.form-control.input-sm(type="date" required)
+                        .help-block.with-errors
                 .col-lg-2
                     //a#income-form-button-new-good.btn.btn-success.btn-sm.add-good-button(href='javascript:void(0)', title="Добавить недостающий в списке товар")
                         span.fa.fa-plus-circle(aria-hidden="true")
@@ -19,6 +20,7 @@ section#income.content-section.text-center
                         label.control-label.col-lg-2.pr8(for="income-good-name") Товар
                         .col-lg-9
                             select#income-good-name.form-control.good-combo(required)
+                            .help-block.with-errors
                         .col-lg-1
                             a#income-form-button-new-good.btn.btn-success.add-good-button.pull-left(href='javascript:void(0)', title="Добавить недостающий в списке товар")
                                 span.fa.fa-plus-circle(aria-hidden="true")
@@ -26,8 +28,12 @@ section#income.content-section.text-center
                     .form-group
                         label.control-label.col-lg-4(for="income-good-quant") Кол-во
                         .col-lg-8
-                            input#income-good-quant.form-control(type="number" step="1" required)
+                            input#income-good-quant.form-control(type="number", step="1", required, data-vgzerro="true", data-vgzerro-error="Кол-во должно быть больше нуля.")
+                            .help-block.with-errors
                 .col-lg-2
                     a#income-button-add-good.btn.btn-primary.btn-sm(href='javascript:void(0)', style="margin-left:8px")
                         span.fa.fa-check-circle-o.rt(aria-hidden="true", style="margin-right:8px")
                         span Добавить позицию
+            .row
+                .col-lg-12
+                    table#income-table.table-condensed

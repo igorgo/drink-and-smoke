@@ -7,13 +7,26 @@ var debug = require('debug')('db:opers');
 var periods = require("./periods");
 
 /**
- * @typedef {Object} OpersRow
- * @property {String} date
- * @property {Number} good
+ * @typedef {Object} OperRow
+ * @property {Number} id
+ * @property {Number} ngood
  * @property {Number} period
  * @property {Number} quant
- * @property {String} type
+ * @property {String} sgood
+ * @property {Number} nprodcode
+ * @property {String} sprodcode
  */
+
+const SQL_GET_OPERS_SELECT =
+        "SELECT " +
+        "    o.rowid AS id, o.good AS ngood, o.period, o.quant, " +
+        "    g.name || ' - ' || g.volume AS sgood, g.prodtype AS nprodcode, " +
+        "    coalesce(p.subcode,p.code) || ' - ' || p.name AS sprodcode ",
+    SQL_GET_OPERS_FROM =
+        "  FROM opers o " +
+        "    INNER JOIN goods g on o.good = g.rowid " +
+        "    INNER JOIN prodcodes p on g.prodtype = p.rowid ";
+
 
 /**
  * @typedef {Object} GoodsSubTotals
@@ -92,12 +105,14 @@ function addOper(date, good, quant, type) {
 /**
  * Считывание записи операции
  * @param id
- * @returns {Promise<OpersRow>}
+ * @returns {Promise<OperRow>}
  */
 function getOperById(id) {
+    const SQL_WHERE = "WHERE o.rowid=$id";
+    debug("Querying oper id=%d",id);
     return new Promise(function (resolve, reject) {
         db.get(
-            "select o.date, o.good, o.period, o.quant, o.type from opers o where o.rowid=$id",
+            [SQL_GET_OPERS_SELECT, SQL_GET_OPERS_FROM, SQL_WHERE].join(" "),
             {$id: id},
             function (err, row) {
                 if (err) reject(err);
@@ -210,12 +225,12 @@ function getTotalOpersByGoodsOnPeriod(period, opertype, prodtype) {
  * @param {CodesSubTotals} a
  * @param {CodesSubTotals} b
  */
-function _sortByCode(a,b) {
+function _sortByCode(a, b) {
     return a.prod_code.localeCompare(b.prod_code);
 }
 
 /**
- * Считывание операций за период с группировкой по основным коду продукта (количество в литрах/штуках)
+ * Считывание операций за период с группировкой по коду продукта (количество в литрах/штуках)
  * @param period
  * @param opertype -- тип операции (приход/расход)
  * @param prodtype -- тип продукта (сигареты/бухло)
@@ -239,7 +254,7 @@ function getTotalOpersByCodesOnPeriod(period, opertype, prodtype) {
 }
 
 /**
- * Считывание операций за период с группировкой по основным коду продукта (количество в литрах/штуках)
+ * Считывание операций за период с группировкой по основному коду продукта (количество в литрах/штуках)
  * @param period
  * @param opertype -- тип операции (приход/расход)
  * @param prodtype -- тип продукта (сигареты/бухло)
@@ -277,7 +292,7 @@ function getTotalOpersByMainCodesOnPeriod(period, opertype, prodtype) {
 function getTotalOpersBySubCodesOnPeriod(period, opertype, prodtype) {
     return new Promise(function (resolve, reject) {
         db.all(
-            "SELECT p.rowid AS prod_id, p.subcode AS prod_code, p.name AS prod_name, sum(o.quant*g.volume) AS sub_quant " +
+            "SELECT p.rowid AS prod_id, p.subcode AS prod_code, 'у тому числі ' || p.name AS prod_name, sum(o.quant*g.volume) AS sub_quant " +
             "  FROM opers o " +
             "    INNER JOIN goods g on o.good = g.rowid " +
             "    INNER JOIN prodcodes p on g.prodtype = p.rowid " +
@@ -296,11 +311,28 @@ function getTotalOpersBySubCodesOnPeriod(period, opertype, prodtype) {
     });
 }
 
-
-
-// todo: Считывание операций за период с группировкой по коду продукта (количество в литрах/штуках)
-// todo: Считывание операций за период с группировкой по сабкоду продукта (количество в литрах/штуках) (в названии добавить "у тому числі ")
-
+/**
+ * Список операций на дату
+ * @param {Date} date
+ * @param {String<I|O>} opertype
+ * @returns {Promise<OperRow[]>}
+ */
+function getOpersByDate(date, opertype) {
+    const SQL_WHERE = "WHERE o.date=$date and o.type=$opertype";
+    const SQL_ORDER = "ORDER BY o.rowid DESC";
+    return new Promise(function (resolve, reject) {
+        db.all([SQL_GET_OPERS_SELECT,SQL_GET_OPERS_FROM,SQL_WHERE,SQL_ORDER].join(" "),
+            {
+                $date: date.yyyymmdd(),
+                $opertype: opertype.toUpperCase()
+            },
+            function (err, rows) {
+                if (err) reject(err);
+                else resolve(rows);
+            }
+        );
+    });
+}
 
 module.exports.addIncome = addIncome;
 module.exports.addOutcome = addOutcome;
@@ -308,3 +340,5 @@ module.exports.deleteOper = deleteOper;
 module.exports.modifyOper = modifyOper;
 module.exports.getTotalOpersByGoodsOnPeriod = getTotalOpersByGoodsOnPeriod;
 module.exports.getTotalOpersByCodesOnPeriod = getTotalOpersByCodesOnPeriod;
+module.exports.getOpersByDate = getOpersByDate;
+module.exports.getOperById = getOperById;
