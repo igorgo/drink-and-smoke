@@ -1,19 +1,16 @@
-section#income.content-section.text-center
+section#income.content-section.text-center.container-fluid
     .row
         .col-lg-8.col-lg-offset-2
             h2 Приход
-    #income-form.row.form-horizontal
+    #income-form.row.form-horizontal.hidden
         .col-lg-10.col-lg-offset-1
             .row
-                .form-group.col-lg-6
-                    label.control-label.col-lg-2.col-lg-offset-7(for="income-date") Дата
-                    .col-lg-3
-                        input#income-date.form-control.input-sm(type="date" required)
-                        .help-block.with-errors
-                .col-lg-2
-                    //a#income-form-button-new-good.btn.btn-success.btn-sm.add-good-button(href='javascript:void(0)', title="Добавить недостающий в списке товар")
-                        span.fa.fa-plus-circle(aria-hidden="true")
-                        span Новый товар
+                .form-group
+                    .col-lg-4.col-lg-offset-4
+                        label.control-label.col-lg-4(for="income-date") Дата
+                        .col-lg-6
+                            input#income-date.form-control(type="date" required)
+                            .help-block.with-errors
             .row.no-gutter
                 .col-lg-8
                     .form-group.no-gutter

@@ -15,17 +15,20 @@ var periods = require("./periods");
  * @property {String} sgood
  * @property {Number} nprodcode
  * @property {String} sprodcode
+ * @property {String} closed
  */
 
 const SQL_GET_OPERS_SELECT =
         "SELECT " +
         "    o.rowid AS id, o.good AS ngood, o.period, o.quant, " +
         "    g.name || ' - ' || g.volume AS sgood, g.prodtype AS nprodcode, " +
-        "    coalesce(p.subcode,p.code) || ' - ' || p.name AS sprodcode ",
+        "    coalesce(p.subcode,p.code) || ' - ' || p.name AS sprodcode, " +
+        "    r.closed ",
     SQL_GET_OPERS_FROM =
         "  FROM opers o " +
-        "    INNER JOIN goods g on o.good = g.rowid " +
-        "    INNER JOIN prodcodes p on g.prodtype = p.rowid ";
+        "    INNER JOIN goods g ON o.good = g.rowid " +
+        "    INNER JOIN prodcodes p ON g.prodtype = p.rowid " +
+        "    INNER JOIN periods r ON o.period = r.rowid ";
 
 
 /**

@@ -100,18 +100,46 @@ function initNavigation() {
     });
 }
 
+function operOperCell(value, row) {
+    var enbl = (row.closed === 'N');
+    return [
+        '<a class="edit-income-row btn btn-',enbl?'primary':'default',' btn-xs ',enbl?'':'disabled',
+        ' " href="javascript:void(0)" ',enbl?'title="Исправить"':'','>',
+        '<i class="fa fa-pencil" aria-hidden="true"></i></a>',
+        '<a class="del-income-row btn btn-',enbl?'danger':'default',' btn-xs ',enbl?'':'disabled',
+        ' " href="javascript:void(0)" ',enbl?'title="Удалить"':'','>',
+        '<i class="fa fa-trash" aria-hidden="true"></i></a>'
+    ].join('');
+
+}
+
+var operCell = [
+    '<a class="edit-income-row btn btn-default btn-xs disabled" href="javascript:void(0)" title="Исправить">',
+    '<i class="fa fa-pencil" aria-hidden="true"></i>',
+    '</a>',
+    '<a class="del-income-row btn btn-danger btn-xs ml5" href="javascript:void(0)" title="Удалить">',
+    '<i class="fa fa-trash" aria-hidden="true"></i>',
+    '</a>'
+].join('');
+
 function initTables() {
     o.tableIncome.bootstrapTable({
         showHeader: false,
         classes: "table table-no-bordered",
         locale: "ru_RU",
         columns: [{
-            field: "sgood"
+            field: "sgood",
+            align: "left"
         }, {
-            field: "sprodcode"
+            field: "sprodcode",
+            align: "left"
         }, {
             field: "quant",
             align: "right"
+        },{
+            align: 'center',
+            events: 'rowOperateEvents',
+            formatter: operOperCell
         }]
     });
 }
@@ -235,6 +263,8 @@ function bindEvents() {
             dataType: 'JSON'
         }).done(function (resp) {
             o.tableIncome.bootstrapTable("prepend", [resp]);
+            o.formIncome.good.trigger("resetValue");
+            o.formIncome.quant.val("");
         });
         // todo: click on add income
     });
@@ -250,6 +280,7 @@ $(function () {
             o.formGood.prodType.filter(":checked").trigger("click");
             o.combosGoods.combobox();
             o.combosGoods.trigger("fillOptions");
+            o.formIncome.removeClass("hidden");
         })
         .catch (console.error);
     o.formIncome.date.val(new Date().yyyymmdd()).trigger("change");

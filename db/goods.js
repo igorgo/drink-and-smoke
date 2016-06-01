@@ -62,7 +62,7 @@ function getGoods (type) {
 function getGood (id) {
     return new Promise(function (resolve, reject) {
         const SQL_WHERE = "WHERE g.rowid = $id";
-        db.get([SQL_GET_FROM,SQL_GET_FROM,SQL_WHERE].join(" "),{$id:id},function(err,row){
+        db.get([SQL_GET_SELECT,SQL_GET_FROM,SQL_WHERE].join(" "),{$id:id},function(err,row){
             if (err) reject(err);
             resolve(row);
         });
