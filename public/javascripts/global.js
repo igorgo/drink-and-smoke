@@ -59,6 +59,10 @@ function initPageObjects() {
     o.formGood.cancel = o.formGood.find("#good-edit-cancel");
     o.formGood.error = o.formGood.find("#good-edit-error");
 
+    o.modalOper = $("#oper-edit-dialog");
+    o.formOper = $("#oper-edit-form");
+    o.formOper.title = $("#oper-edit-dialog-title");
+
     o.formIncome = $("#income-form");
     o.formIncome.date = $("#income-date");
     o.formIncome.good = $("#income-good-name");
@@ -103,24 +107,15 @@ function initNavigation() {
 function operOperCell(value, row) {
     var enbl = (row.closed === 'N');
     return [
-        '<a class="edit-income-row btn btn-',enbl?'primary':'default',' btn-xs ',enbl?'':'disabled',
-        ' " href="javascript:void(0)" ',enbl?'title="Исправить"':'','>',
+        '<a class="edit-income-row btn btn-', enbl ? 'primary' : 'default', ' btn-xs ', enbl ? '' : 'disabled',
+        ' " href="javascript:void(0)" ', enbl ? 'title="Исправить"' : '', '>',
         '<i class="fa fa-pencil" aria-hidden="true"></i></a>',
-        '<a class="del-income-row btn btn-',enbl?'danger':'default',' btn-xs ',enbl?'':'disabled',
-        ' " href="javascript:void(0)" ',enbl?'title="Удалить"':'','>',
+        '<a class="del-income-row btn btn-', enbl ? 'danger' : 'default', ' btn-xs ', enbl ? '' : 'disabled',
+        ' " href="javascript:void(0)" ', enbl ? 'title="Удалить"' : '', '>',
         '<i class="fa fa-trash" aria-hidden="true"></i></a>'
     ].join('');
 
 }
-
-var operCell = [
-    '<a class="edit-income-row btn btn-default btn-xs disabled" href="javascript:void(0)" title="Исправить">',
-    '<i class="fa fa-pencil" aria-hidden="true"></i>',
-    '</a>',
-    '<a class="del-income-row btn btn-danger btn-xs ml5" href="javascript:void(0)" title="Удалить">',
-    '<i class="fa fa-trash" aria-hidden="true"></i>',
-    '</a>'
-].join('');
 
 function initTables() {
     o.tableIncome.bootstrapTable({
@@ -136,10 +131,35 @@ function initTables() {
         }, {
             field: "quant",
             align: "right"
-        },{
+        }, {
             align: 'center',
-            events: 'rowOperateEvents',
-            formatter: operOperCell
+            events: {
+                'click .del-income-row': function (e, value, row) {
+                    /*
+                     $o.dlgDeleteOper.btnDelete.attr("del-exp-id", row.rowid);
+                     $o.dlgDeleteOper.modal('show');
+                     */
+                    console.log(row);
+                },
+                'click .edit-income-row': function (e, value, row) {
+                    o.modalOper.data("operType", "I");
+                    o.modalOper.data("row", row);
+                    o.modalOper.data("date", o.formIncome.date.val());
+                    o.modalOper.modal('show');
+                }
+            },
+            formatter: function (value, row) {
+                var enbl = (row.closed === 'N');
+                return [
+                    '<a class="edit-income-row btn btn-', enbl ? 'primary' : 'default', ' btn-xs ', enbl ? '' : 'disabled',
+                    ' " href="javascript:void(0)" ', enbl ? 'title="Исправить"' : '', '>',
+                    '<i class="fa fa-pencil" aria-hidden="true"></i></a>',
+                    '<a class="del-income-row btn btn-', enbl ? 'danger' : 'default', ' btn-xs ', enbl ? '' : 'disabled',
+                    ' " href="javascript:void(0)" ', enbl ? 'title="Удалить"' : '', '>',
+                    '<i class="fa fa-trash" aria-hidden="true"></i></a>'
+                ].join('');
+
+            }
         }]
     });
 }
@@ -268,6 +288,13 @@ function bindEvents() {
         });
         // todo: click on add income
     });
+    o.modalOper.bind("shown.bs.modal", function () {
+        var typeText = (o.modalOper.data("operType") === "I") ? 'прихода' : 'расхода';
+        o.formOper.title.text('Исправление ' +  typeText);
+    });
+
+
+
 }
 
 $(function () {
