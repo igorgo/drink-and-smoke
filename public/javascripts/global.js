@@ -50,18 +50,24 @@ function getGoods() {
 
 function initPageObjects() {
     o.modalGood = $("#good-edit-dialog");
-    o.formGood = $("#good-edit-form");
+    o.formGood = o.modalGood.find("#good-edit-form");
     o.formGood.prodType = o.formGood.find("input:radio[name='good-edit-type']");
     o.formGood.prodCode = o.formGood.find("#good-edit-code");
     o.formGood.name = o.formGood.find("#good-edit-name");
     o.formGood.volume = o.formGood.find("#good-edit-volume");
     o.formGood.ok = o.formGood.find("#good-edit-ok");
     o.formGood.cancel = o.formGood.find("#good-edit-cancel");
-    o.formGood.error = o.formGood.find("#good-edit-error");
+    o.formGood.errMsg = o.formGood.find("#good-edit-error");
 
     o.modalOper = $("#oper-edit-dialog");
-    o.formOper = $("#oper-edit-form");
-    o.formOper.title = $("#oper-edit-dialog-title");
+    o.formOper = o.modalOper.find("#oper-edit-form");
+    o.formOper.title = o.modalOper.find("#oper-edit-dialog-title");
+    o.formOper.date = o.formOper.find("#oper-date");
+    o.formOper.good = o.formOper.find("#oper-good-name");
+    o.formOper.quant = o.formOper.find("#oper-good-quant");
+    o.formOper.ok = o.formOper.find("#oper-edit-ok");
+    o.formOper.cancel = o.formOper.find("#oper-edit-cancel");
+    o.formOper.errMsg = o.formOper.find("#oper-edit-error");
 
     o.formIncome = $("#income-form");
     o.formIncome.date = $("#income-date");
@@ -104,63 +110,55 @@ function initNavigation() {
     });
 }
 
-function operOperCell(value, row) {
-    var enbl = (row.closed === 'N');
-    return [
-        '<a class="edit-income-row btn btn-', enbl ? 'primary' : 'default', ' btn-xs ', enbl ? '' : 'disabled',
-        ' " href="javascript:void(0)" ', enbl ? 'title="Исправить"' : '', '>',
-        '<i class="fa fa-pencil" aria-hidden="true"></i></a>',
-        '<a class="del-income-row btn btn-', enbl ? 'danger' : 'default', ' btn-xs ', enbl ? '' : 'disabled',
-        ' " href="javascript:void(0)" ', enbl ? 'title="Удалить"' : '', '>',
-        '<i class="fa fa-trash" aria-hidden="true"></i></a>'
-    ].join('');
-
-}
-
 function initTables() {
     o.tableIncome.bootstrapTable({
         showHeader: false,
         classes: "table table-no-bordered",
         locale: "ru_RU",
-        columns: [{
-            field: "sgood",
-            align: "left"
-        }, {
-            field: "sprodcode",
-            align: "left"
-        }, {
-            field: "quant",
-            align: "right"
-        }, {
-            align: 'center',
-            events: {
-                'click .del-income-row': function (e, value, row) {
-                    /*
-                     $o.dlgDeleteOper.btnDelete.attr("del-exp-id", row.rowid);
-                     $o.dlgDeleteOper.modal('show');
-                     */
-                    console.log(row);
-                },
-                'click .edit-income-row': function (e, value, row) {
-                    o.modalOper.data("operType", "I");
-                    o.modalOper.data("row", row);
-                    o.modalOper.data("date", o.formIncome.date.val());
-                    o.modalOper.modal('show');
-                }
+        columns: [
+            {
+                field: "sgood",
+                align: "left"
             },
-            formatter: function (value, row) {
-                var enbl = (row.closed === 'N');
-                return [
-                    '<a class="edit-income-row btn btn-', enbl ? 'primary' : 'default', ' btn-xs ', enbl ? '' : 'disabled',
-                    ' " href="javascript:void(0)" ', enbl ? 'title="Исправить"' : '', '>',
-                    '<i class="fa fa-pencil" aria-hidden="true"></i></a>',
-                    '<a class="del-income-row btn btn-', enbl ? 'danger' : 'default', ' btn-xs ', enbl ? '' : 'disabled',
-                    ' " href="javascript:void(0)" ', enbl ? 'title="Удалить"' : '', '>',
-                    '<i class="fa fa-trash" aria-hidden="true"></i></a>'
-                ].join('');
+            {
+                field: "sprodcode",
+                align: "left"
+            },
+            {
+                field: "quant",
+                align: "right"
+            },
+            {
+                align: 'center',
+                events: {
+                    'click .del-income-row': function (e, value, row) {
+                        /*
+                         $o.dlgDeleteOper.btnDelete.attr("del-exp-id", row.rowid);
+                         $o.dlgDeleteOper.modal('show');
+                         */
+                        console.log(row);
+                    },
+                    'click .edit-income-row': function (e, value, row) {
+                        o.modalOper.data("operType", "I");
+                        o.modalOper.data("row", row);
+                        o.modalOper.data("date", o.formIncome.date.val());
+                        o.modalOper.modal('show');
+                    }
+                },
+                formatter: function (value, row) {
+                    var enbl = (row.closed === 'N');
+                    return [
+                        '<a class="edit-income-row btn btn-', enbl ? 'primary' : 'default', ' btn-xs ', enbl ? '' : 'disabled',
+                        ' " href="javascript:void(0)" ', enbl ? 'title="Исправить"' : '', '>',
+                        '<i class="fa fa-pencil" aria-hidden="true"></i></a>',
+                        '<a class="del-income-row btn btn-', enbl ? 'danger' : 'default', ' btn-xs ', enbl ? '' : 'disabled',
+                        ' " href="javascript:void(0)" ', enbl ? 'title="Удалить"' : '', '>',
+                        '<i class="fa fa-trash" aria-hidden="true"></i></a>'
+                    ].join('');
 
+                }
             }
-        }]
+        ]
     });
 }
 
@@ -209,6 +207,10 @@ function bindEvents() {
         });
         el.data('combobox').refresh();
     });
+    o.combosGoods.bind("setValue", function (e, value) {
+        $(this).val(value);
+        $(this).data('combobox').refresh();
+    });
     o.formGood.prodType.bind("click", function () {
         var v = $(this).val();
         var e = o.formGood.prodCode;
@@ -219,7 +221,7 @@ function bindEvents() {
     });
     o.modalGood.bind("hidden.bs.modal", function () {
         o.formGood.validator('destroy');
-        o.formGood.error.text("");
+        o.formGood.errMsg.text("");
         o.formGood.prodCode.trigger("resetValue");
         o.formGood.name.val("");
         o.formGood.volume.val("0");
@@ -228,7 +230,7 @@ function bindEvents() {
         o.modalGood.modal('hide');
     });
     o.formGood.ok.bind("click", function () {
-        o.formGood.error.text("");
+        o.formGood.errMsg.text("");
         o.formGood.validator('destroy');
         o.formGood.validator(validatorOptions);
         o.formGood.validator('validate');
@@ -247,7 +249,7 @@ function bindEvents() {
             o.combosGoods.trigger("fillOptions");
             o.modalGood.modal('hide');
         }).fail(function (resp) {
-            o.formGood.error.text(resp.responseText);
+            o.formGood.errMsg.text(resp.responseText);
         });
 
     });
@@ -286,14 +288,54 @@ function bindEvents() {
             o.formIncome.good.trigger("resetValue");
             o.formIncome.quant.val("");
         });
-        // todo: click on add income
     });
     o.modalOper.bind("shown.bs.modal", function () {
         var typeText = (o.modalOper.data("operType") === "I") ? 'прихода' : 'расхода';
-        o.formOper.title.text('Исправление ' +  typeText);
+        o.formOper.title.text('Исправление ' + typeText);
+        o.formOper.date.val(o.modalOper.data('date'));
+        o.formOper.good.trigger('setValue', o.modalOper.data('row').ngood);
+        /*
+         o.formOper.good.val(o.modalOper.data('row').ngood);
+         o.formOper.good.data('combobox').refresh();
+         */
+        o.formOper.quant.val(o.modalOper.data('row').quant);
     });
+    o.modalOper.bind("hidden.bs.modal", function () {
+        o.formOper.validator('destroy');
+        o.formOper.errMsg.text("");
+        o.formOper.title.text("");
+        o.formOper.good.trigger("resetValue");
+        o.formOper.date.val("");
+        o.formOper.quant.val("");
+    });
+    o.formOper.cancel.bind("click", function () {
+        o.modalOper.modal('hide');
+    });
+    o.formOper.ok.bind("click", function () {
+        o.formOper.errMsg.text("");
+        o.formOper.validator('destroy');
+        o.formOper.validator(validatorOptions);
+        o.formOper.validator('validate');
+        if (o.formOper.find(".has-error").length > 0) return false;
+        $.ajax({
+            type: 'POST',
+            data: {
+                id: o.modalOper.data('row').id,
+                code: o.formGood.prodCode.val(),
+                name: o.formGood.name.val(),
+                volume: o.formGood.volume.val()
+            },
+            url: '/data//opers/income',
+            dataType: 'JSON'
+        }).done(function (resp) {
+            goodsCache.push(resp);
+            o.combosGoods.trigger("fillOptions");
+            o.modalOper.modal('hide');
+        }).fail(function (resp) {
+            o.formGood.errMsg.text(resp.responseText);
+        });
 
-
+    });
 
 }
 

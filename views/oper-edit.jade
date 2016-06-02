@@ -1,0 +1,41 @@
+#oper-edit-dialog.modal.fade(tabindex="-1", role="dialog", aria-labelledby="oper-edit-dialog-title", aria-hidden="true")
+    .modal-dialog.modal-lg
+        #oper-edit-form.modal-content
+            .modal-header
+                button.close(type="button", data-dismiss="modal", aria-hidden="true") &times;
+                h4#oper-edit-dialog-title.modal-title
+            .modal-body.form-horizontal
+                .row
+                    .col-lg-12
+                        .form-group
+                            label.control-label.col-lg-1.pr8(for="oper-good-name") Товар
+                            .col-lg-10
+                                select#oper-good-name.form-control.good-combo(required)
+                                .help-block.with-errors
+                            .col-lg-1
+                                a#oper-form-button-new-good.btn.btn-success.add-good-button.pull-right(href='javascript:void(0)', title="Добавить недостающий в списке товар")
+                                    span.fa.fa-plus-circle(aria-hidden="true")
+                .row
+                    .col-lg-6
+                        .form-group
+                                label.control-label.col-lg-2(for="oper-date") Дата
+                                .col-lg-6
+                                    input#oper-date.form-control(type="date" required)
+                                    .help-block.with-errors
+                    .col-lg-6
+                        .form-group
+                            label.control-label.col-lg-3.col-lg-offset-4(for="oper-good-quant") Кол-во
+                            .col-lg-5
+                                input#oper-good-quant.form-control(type="number", step="1", required, data-vgzerro="true", data-vgzerro-error="Кол-во должно быть больше нуля.")
+                                .help-block.with-errors
+            .modal-footer
+                .row
+                    .col-lg-8
+                        code#oper-edit-error
+                    .col-lg-4
+                        a#oper-edit-cancel.btn.btn-primary.pull-right(href='javascript:void(0)')
+                            i.fa.fa-ban.rt
+                            span Отмена
+                        a#oper-edit-ok.btn.btn-primary.pull-right(href='javascript:void(0)')
+                            i.fa.fa-check-circle-o.rt
+                            span ОК

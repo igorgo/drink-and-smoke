@@ -158,7 +158,7 @@ function deleteOper(id) {
  * @param date
  * @param good
  * @param quant
- * @returns {Promise<>}
+ * @returns {Promise<Number>}
  */
 function modifyOper(id, date, good, quant) {
     return new Promise(function (resolve, reject) {
@@ -186,7 +186,7 @@ function modifyOper(id, date, good, quant) {
                     },
                     function (err) {
                         if (err) reject(err);
-                        else resolve();
+                        else resolve(id);
                     }
                 );
             })

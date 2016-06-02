@@ -89,4 +89,21 @@ router.put("/opers/income", function (req, res, next) {
         })
         .catch(next);
 });
+
+router.post("/opers/income", function (req, res, next) {
+    debug("POST data/opers/income");
+    var id = req.body.id,
+        date = new Date(req.body.date),
+        good = req.body.good,
+        quant = req.body.quant;
+    debug("id: %d\ndate : %s\ngood: %d\nquant: %f",id,date,good,quant);
+    dbOpers.modifyOper (id, date, good, quant)
+        .then(dbOpers.getOperById)
+        .then(function (row) {
+            res.status(200).json(row);
+        })
+        .catch(next);
+});
+
+
 module.exports = router;
