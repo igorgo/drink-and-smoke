@@ -67,3 +67,8 @@ section .form-control{
     background-color: #524328;
     color: #FFFBFB;
 }
+
+.datepicker-inline {
+    margin-right: auto;
+    margin-left: auto;
+}

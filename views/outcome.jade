@@ -1,26 +1,36 @@
 section#outcome.content-section.text-center.container-fluid
     .row
-        .col-lg-8.col-lg-offset-2
+        .col-sm-8.col-sm-offset-2
             h2 Расход
-            p Тут будет расход
-            p Тут будет расход
-            p Тут будет расход
-            p Тут будет расход
-            p Тут будет расход
-            p Тут будет расход
-            p Тут будет расход
-            p Тут будет расход
-            p Тут будет расход
-            p Тут будет расход
-            p Тут будет расход
-            p Тут будет расход
-            p Тут будет расход
-            p Тут будет расход
-            p Тут будет расход
-            p Тут будет расход
-            p Тут будет расход
-            p Тут будет расход
-            p Тут будет расход
-            p Тут будет расход
-            p Тут будет расход
-            p Тут будет расход
+    #outcome-form.row.form-horizontal.hidden
+        .col-sm-10.col-sm-offset-1
+            .row
+                .form-group
+                    .col-sm-4.col-sm-offset-4
+                        label.control-label.col-sm-4(for="outcome-date") Дата
+                        .col-sm-6
+                            input#outcome-date.form-control(type="date" required)
+                            .help-block.with-errors
+            .row.no-gutter
+                .col-sm-6.col-sm-offset-1
+                    .form-group.no-gutter
+                        label.control-label.col-sm-2.pr8(for="outcome-good-name") Товар
+                        .col-sm-9
+                            select#outcome-good-name.form-control.good-combo(required)
+                            .help-block.with-errors
+                        .col-sm-1
+                            a#outcome-form-button-new-good.btn.btn-success.add-good-button.pull-left(href='javascript:void(0)', title="Добавить недостающий в списке товар")
+                                span.fa.fa-plus-circle(aria-hidden="true")
+                .col-sm-2
+                    .form-group
+                        label.control-label.col-sm-4(for="outcome-good-quant") Кол-во
+                        .col-sm-8
+                            input#outcome-good-quant.form-control(type="number", step="1", required, data-vgzerro="true", data-vgzerro-error="Кол-во должно быть больше нуля.")
+                            .help-block.with-errors
+                .col-sm-2
+                    a#outcome-button-add-good.btn.btn-primary.btn-sm(href='javascript:void(0)', style="margin-left:8px")
+                        span.fa.fa-check-circle-o.rt(aria-hidden="true", style="margin-right:8px")
+                        span Добавить позицию
+    .row
+        .col-sm-12
+            table#outcome-table.table-condensed

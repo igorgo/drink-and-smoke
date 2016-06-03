@@ -23,6 +23,7 @@
     "jquery-easing": "*",
     "bootstrap-combobox": "^1.1.7",
     "roboto-fontface": "^0.4.5",
-    "bootstrap-validator": "^0.10.2"
+    "bootstrap-validator": "^0.10.2",
+    "bootstrap-datepicker": "^1.6.1"
   }
 }

@@ -49,6 +49,28 @@ function getGoods() {
 }
 
 function initPageObjects() {
+    o.formIncome = $("#income-form");
+    o.formIncome.date = o.formIncome.find("#income-date");
+    o.formIncome.good =  o.formIncome.find("#income-good-name");
+    o.formIncome.quant =  o.formIncome.find("#income-good-quant");
+    o.formIncome.add =  o.formIncome.find("#income-button-add-good");
+    o.tableIncome = $("#income-table");
+
+    o.formOutcome = $("#outcome-form");
+    o.formOutcome.date = o.formOutcome.find("#outcome-date");
+    o.formOutcome.good =  o.formOutcome.find("#outcome-good-name");
+    o.formOutcome.quant =  o.formOutcome.find("#outcome-good-quant");
+    o.formOutcome.add =  o.formOutcome.find("#outcome-button-add-good");
+    o.tableOutcome = $("#outcome-table");
+
+    o.formTurns = $('section#turns');
+    o.formTurns.period = o.formTurns.find('#turns-period');
+
+    o.modalDelete = $("#confirm-delete");
+    o.modalDelete.ok = o.modalDelete.find("#conf-del-ok");
+    o.modalDelete.cancel = o.modalDelete.find("#conf-del-cancel");
+    o.modalDelete.errMsg = o.modalDelete.find("#conf-del-error");
+
     o.modalGood = $("#good-edit-dialog");
     o.formGood = o.modalGood.find("#good-edit-form");
     o.formGood.prodType = o.formGood.find("input:radio[name='good-edit-type']");
@@ -68,20 +90,6 @@ function initPageObjects() {
     o.formOper.ok = o.formOper.find("#oper-edit-ok");
     o.formOper.cancel = o.formOper.find("#oper-edit-cancel");
     o.formOper.errMsg = o.formOper.find("#oper-edit-error");
-
-    o.formIncome = $("#income-form");
-    o.formIncome.date = o.formIncome.find("#income-date");
-    o.formIncome.good =  o.formIncome.find("#income-good-name");
-    o.formIncome.quant =  o.formIncome.find("#income-good-quant");
-    o.formIncome.add =  o.formIncome.find("#income-button-add-good");
-    o.tableIncome = $("#income-table");
-
-    o.modalDelete = $("#confirm-delete");
-    o.modalDelete.ok = o.modalDelete.find("#conf-del-ok");
-    o.modalDelete.cancel = o.modalDelete.find("#conf-del-cancel");
-    o.modalDelete.errMsg = o.modalDelete.find("#conf-del-error");
-
-
 
     o.btnAddGood = $(".add-good-button");
     o.combosGoods = $(".good-combo");
@@ -157,6 +165,53 @@ function initTables() {
                         ' " href="javascript:void(0)" ', enbl ? 'title="Исправить"' : '', '>',
                         '<i class="fa fa-pencil" aria-hidden="true"></i></a>',
                         '<a class="del-income-row btn btn-', enbl ? 'danger' : 'default', ' btn-xs ', enbl ? '' : 'disabled',
+                        ' " href="javascript:void(0)" ', enbl ? 'title="Удалить"' : '', '>',
+                        '<i class="fa fa-trash" aria-hidden="true"></i></a>'
+                    ].join('');
+
+                }
+            }
+        ]
+    });
+    o.tableOutcome.bootstrapTable({
+        showHeader: false,
+        classes: "table table-no-bordered",
+        locale: "ru_RU",
+        columns: [
+            {
+                field: "sgood",
+                align: "left"
+            },
+            {
+                field: "sprodcode",
+                align: "left"
+            },
+            {
+                field: "quant",
+                align: "right"
+            },
+            {
+                align: 'center',
+                events: {
+                    'click .del-outcome-row': function (e, value, row) {
+                        o.modalDelete.data("operType", "O");
+                        o.modalDelete.data("row", row);
+                        o.modalDelete.modal('show');
+                    },
+                    'click .edit-outcome-row': function (e, value, row) {
+                        o.modalOper.data("operType", "O");
+                        o.modalOper.data("row", row);
+                        o.modalOper.data("date", o.formOutcome.date.val());
+                        o.modalOper.modal('show');
+                    }
+                },
+                formatter: function (value, row) {
+                    var enbl = (row.closed === 'N');
+                    return [
+                        '<a class="edit-outcome-row btn btn-', enbl ? 'primary' : 'default', ' btn-xs ', enbl ? '' : 'disabled',
+                        ' " href="javascript:void(0)" ', enbl ? 'title="Исправить"' : '', '>',
+                        '<i class="fa fa-pencil" aria-hidden="true"></i></a>',
+                        '<a class="del-outcome-row btn btn-', enbl ? 'danger' : 'default', ' btn-xs ', enbl ? '' : 'disabled',
                         ' " href="javascript:void(0)" ', enbl ? 'title="Удалить"' : '', '>',
                         '<i class="fa fa-trash" aria-hidden="true"></i></a>'
                     ].join('');
@@ -271,8 +326,24 @@ function bindEvents() {
             table.bootstrapTable("removeAll");
         }
     });
+    o.tableOutcome.bind("dataChange", function () {
+        var table = $(this);
+        var date = o.formOutcome.date.val();
+        if (date) {
+            $.get(
+                "/data/operday/O/" + date
+            ).done(function (data) {
+                table.bootstrapTable("load", data);
+            });
+        } else {
+            table.bootstrapTable("removeAll");
+        }
+    });
     o.formIncome.date.bind("change", function () {
         o.tableIncome.trigger("dataChange");
+    });
+    o.formOutcome.date.bind("change", function () {
+        o.tableOutcome.trigger("dataChange");
     });
     o.formIncome.add.bind("click", function () {
         o.formIncome.validator("destroy");
@@ -286,13 +357,34 @@ function bindEvents() {
                 good: o.formIncome.good.val(),
                 quant: o.formIncome.quant.val()
             },
-            url: '/data//opers/income',
+            url: '/data/opers/income',
             dataType: 'JSON'
         }).done(function (resp) {
             o.tableIncome.bootstrapTable("prepend", [resp]);
             o.formIncome.validator("destroy");
             o.formIncome.good.trigger("resetValue");
             o.formIncome.quant.val("");
+        });
+    });
+    o.formOutcome.add.bind("click", function () {
+        o.formOutcome.validator("destroy");
+        o.formOutcome.validator(validatorOptions);
+        o.formOutcome.validator('validate');
+        if (o.formOutcome.find(".has-error").length > 0) return false;
+        $.ajax({
+            type: 'PUT',
+            data: {
+                date: o.formOutcome.date.val(),
+                good: o.formOutcome.good.val(),
+                quant: o.formOutcome.quant.val()
+            },
+            url: '/data/opers/outcome',
+            dataType: 'JSON'
+        }).done(function (resp) {
+            o.tableOutcome.bootstrapTable("prepend", [resp]);
+            o.formOutcome.validator("destroy");
+            o.formOutcome.good.trigger("resetValue");
+            o.formOutcome.quant.val("");
         });
     });
     o.modalOper.bind("shown.bs.modal", function () {
@@ -332,7 +424,7 @@ function bindEvents() {
             dataType: 'JSON'
         }).done(function (resp) {
             if (o.modalOper.data("operType") === "I") o.tableIncome.trigger("dataChange");
-            else console.log('todo: refresh outcome table')
+            else o.tableOutcome.trigger("dataChange");;
             o.modalOper.modal('hide');
         }).fail(function (resp) {
             console.log(resp);
@@ -348,7 +440,7 @@ function bindEvents() {
             url: '/data/opers/' + id
         }).done(function () {
             if (o.modalDelete.data("operType") === "I") o.tableIncome.trigger("dataChange");
-            else console.log('todo: refresh outcome table')
+            else o.tableOutcome.trigger("dataChange");
             o.modalDelete.modal('hide');
         }).fail(function (resp) {
             console.log(resp);
@@ -372,9 +464,18 @@ $(function () {
             o.combosGoods.combobox();
             o.combosGoods.trigger("fillOptions");
             o.formIncome.removeClass("hidden");
+            o.formOutcome.removeClass("hidden");
         })
         .catch (console.error);
     o.formIncome.date.val(new Date().yyyymmdd()).trigger("change");
+    o.formOutcome.date.val(new Date().yyyymmdd()).trigger("change");
+    o.formTurns.period.datepicker({
+        format: "mm.yyyy",
+        startView: 1,
+        minViewMode: 1,
+        maxViewMode: 2,
+        language: "ru"
+    });
 });
 
 

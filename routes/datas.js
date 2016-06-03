@@ -90,6 +90,20 @@ router.put("/opers/income", function (req, res, next) {
         .catch(next);
 });
 
+router.put("/opers/outcome", function (req, res, next) {
+    debug("PUT data/opers/outcome");
+    var date = new Date(req.body.date),
+        good = req.body.good,
+        quant = req.body.quant;
+    debug("date : %s\ngood: %i\nquant: %f",date,good,quant);
+    dbOpers.addOutcome (date, good, quant)
+        .then(dbOpers.getOperById)
+        .then(function (row) {
+            res.status(200).json(row);
+        })
+        .catch(next);
+});
+
 router.post("/opers/:id", function (req, res, next) {
     debug("POST data/opers");
     var id = req.params.id,
