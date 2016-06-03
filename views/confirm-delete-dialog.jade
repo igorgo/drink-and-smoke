@@ -1,0 +1,18 @@
+#confirm-delete.modal.fade.small(tabindex="-1", role="dialog", aria-labelledby="confirm-delete-title", aria-hidden="true")
+    .modal-dialog
+        .modal-content
+            .modal-header
+                button.close(type="button", data-dismiss="modal", aria-hidden="true") &times;
+                h4#confirm-delete-title.modal-title Подтверждение удаления
+            .modal-body
+                p Вы желаете произвести удаление этой операции?
+            .modal-footer
+                .col-lg-6
+                    code#conf-del-error
+                .col-lg-6
+                    a#conf-del-cancel.btn.btn-primary.pull-right(href='javascript:void(0)')
+                        i.fa.fa-ban.rt
+                        span Отмена
+                    a#conf-del-ok.btn.btn-danger.pull-right(href='javascript:void(0)')
+                        i.fa.fa-trash.rt
+                        span ОК

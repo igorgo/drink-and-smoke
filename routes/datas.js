@@ -90,9 +90,9 @@ router.put("/opers/income", function (req, res, next) {
         .catch(next);
 });
 
-router.post("/opers/income", function (req, res, next) {
-    debug("POST data/opers/income");
-    var id = req.body.id,
+router.post("/opers/:id", function (req, res, next) {
+    debug("POST data/opers");
+    var id = req.params.id,
         date = new Date(req.body.date),
         good = req.body.good,
         quant = req.body.quant;
@@ -102,8 +102,26 @@ router.post("/opers/income", function (req, res, next) {
         .then(function (row) {
             res.status(200).json(row);
         })
-        .catch(next);
+        .catch(function (err) {
+            debug(err);
+            res.status(500).send(err.message);
+        });
 });
+
+router.delete("/opers/:id", function (req, res, next) {
+    debug("DELETE data/opers");
+    var id = req.params.id;
+    debug("id: %d",id);
+    dbOpers.deleteOper(id)
+        .then(function (row) {
+            res.status(200).end();
+        })
+        .catch(function (err) {
+            debug(err);
+            res.status(500).send(err.message);
+        });
+});
+
 
 
 module.exports = router;

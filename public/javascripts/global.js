@@ -70,11 +70,18 @@ function initPageObjects() {
     o.formOper.errMsg = o.formOper.find("#oper-edit-error");
 
     o.formIncome = $("#income-form");
-    o.formIncome.date = $("#income-date");
-    o.formIncome.good = $("#income-good-name");
-    o.formIncome.quant = $("#income-good-quant");
-    o.formIncome.add = $("#income-button-add-good");
+    o.formIncome.date = o.formIncome.find("#income-date");
+    o.formIncome.good =  o.formIncome.find("#income-good-name");
+    o.formIncome.quant =  o.formIncome.find("#income-good-quant");
+    o.formIncome.add =  o.formIncome.find("#income-button-add-good");
     o.tableIncome = $("#income-table");
+
+    o.modalDelete = $("#confirm-delete");
+    o.modalDelete.ok = o.modalDelete.find("#conf-del-ok");
+    o.modalDelete.cancel = o.modalDelete.find("#conf-del-cancel");
+    o.modalDelete.errMsg = o.modalDelete.find("#conf-del-error");
+
+
 
     o.btnAddGood = $(".add-good-button");
     o.combosGoods = $(".good-combo");
@@ -132,11 +139,9 @@ function initTables() {
                 align: 'center',
                 events: {
                     'click .del-income-row': function (e, value, row) {
-                        /*
-                         $o.dlgDeleteOper.btnDelete.attr("del-exp-id", row.rowid);
-                         $o.dlgDeleteOper.modal('show');
-                         */
-                        console.log(row);
+                        o.modalDelete.data("operType", "I");
+                        o.modalDelete.data("row", row);
+                        o.modalDelete.modal('show');
                     },
                     'click .edit-income-row': function (e, value, row) {
                         o.modalOper.data("operType", "I");
@@ -285,6 +290,7 @@ function bindEvents() {
             dataType: 'JSON'
         }).done(function (resp) {
             o.tableIncome.bootstrapTable("prepend", [resp]);
+            o.formIncome.validator("destroy");
             o.formIncome.good.trigger("resetValue");
             o.formIncome.quant.val("");
         });
@@ -294,10 +300,6 @@ function bindEvents() {
         o.formOper.title.text('Исправление ' + typeText);
         o.formOper.date.val(o.modalOper.data('date'));
         o.formOper.good.trigger('setValue', o.modalOper.data('row').ngood);
-        /*
-         o.formOper.good.val(o.modalOper.data('row').ngood);
-         o.formOper.good.data('combobox').refresh();
-         */
         o.formOper.quant.val(o.modalOper.data('row').quant);
     });
     o.modalOper.bind("hidden.bs.modal", function () {
@@ -317,26 +319,46 @@ function bindEvents() {
         o.formOper.validator(validatorOptions);
         o.formOper.validator('validate');
         if (o.formOper.find(".has-error").length > 0) return false;
+        var id = o.modalOper.data('row').id;
         $.ajax({
             type: 'POST',
             data: {
-                id: o.modalOper.data('row').id,
-                code: o.formGood.prodCode.val(),
-                name: o.formGood.name.val(),
-                volume: o.formGood.volume.val()
+                //id: o.modalOper.data('row').id,
+                date: o.formOper.date.val(),
+                good: o.formOper.good.val(),
+                quant: o.formOper.quant.val()
             },
-            url: '/data//opers/income',
+            url: '/data/opers/' + id,
             dataType: 'JSON'
         }).done(function (resp) {
-            goodsCache.push(resp);
-            o.combosGoods.trigger("fillOptions");
+            if (o.modalOper.data("operType") === "I") o.tableIncome.trigger("dataChange");
+            else console.log('todo: refresh outcome table')
             o.modalOper.modal('hide');
         }).fail(function (resp) {
-            o.formGood.errMsg.text(resp.responseText);
+            console.log(resp);
+            o.formOper.errMsg.text(resp.responseText);
         });
 
     });
+    o.modalDelete.ok.bind("click", function () {
+        console.log(o.modalDelete.data('row'));
+        var id = o.modalDelete.data('row').id;
+        $.ajax({
+            type: 'DELETE',
+            url: '/data/opers/' + id
+        }).done(function () {
+            if (o.modalDelete.data("operType") === "I") o.tableIncome.trigger("dataChange");
+            else console.log('todo: refresh outcome table')
+            o.modalDelete.modal('hide');
+        }).fail(function (resp) {
+            console.log(resp);
+            o.modalDelete.errMsg.text(resp.responseText);
+        });
 
+    });
+    o.modalDelete.cancel.bind("click", function () {
+        o.modalDelete.modal('hide');
+    });
 }
 
 $(function () {

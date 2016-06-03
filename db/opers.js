@@ -112,7 +112,7 @@ function addOper(date, good, quant, type) {
  */
 function getOperById(id) {
     const SQL_WHERE = "WHERE o.rowid=$id";
-    debug("Querying oper id=%d",id);
+    debug("Querying oper id=%d", id);
     return new Promise(function (resolve, reject) {
         db.get(
             [SQL_GET_OPERS_SELECT, SQL_GET_OPERS_FROM, SQL_WHERE].join(" "),
@@ -168,13 +168,16 @@ function modifyOper(id, date, good, quant) {
                 oldPeriod = row.period;
                 return periods.checkPeriodOpen(oldPeriod);
             })
-            .then(function (isClosed) {
-                if (isClosed) reject(new Error("Исправление операции в закрытом периоде невозможно."));
+            .then(function (isOpen) {
+                if (!isOpen) reject(new Error("Исправление операции в закрытом периоде невозможно."));
                 else return periods.getPeriodByDate(date, true);
             })
-            .then(periods.checkPeriodOpen)
-            .then(function (isClosed) {
-                if (isClosed) reject(new Error("Новая дата операции попадает в закрытый период. Исправление невозможно."));
+            .then(function (periodId) {
+                newPeriod = periodId;
+                return periods.checkPeriodOpen(newPeriod);
+            })
+            .then(function (isOpen) {
+                if (!isOpen) reject(new Error("Новая дата операции попадает в закрытый период. Исправление невозможно."));
                 else db.run(
                     "UPDATE opers SET date = $date, good = $good, period = $period, quant  = $quant WHERE rowid = $id",
                     {
@@ -324,7 +327,7 @@ function getOpersByDate(date, opertype) {
     const SQL_WHERE = "WHERE o.date=$date and o.type=$opertype";
     const SQL_ORDER = "ORDER BY o.rowid DESC";
     return new Promise(function (resolve, reject) {
-        db.all([SQL_GET_OPERS_SELECT,SQL_GET_OPERS_FROM,SQL_WHERE,SQL_ORDER].join(" "),
+        db.all([SQL_GET_OPERS_SELECT, SQL_GET_OPERS_FROM, SQL_WHERE, SQL_ORDER].join(" "),
             {
                 $date: date.yyyymmdd(),
                 $opertype: opertype.toUpperCase()

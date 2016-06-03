@@ -295,10 +295,12 @@ function canOpen(id) {
  */
 function checkPeriodOpen(id) {
     return new Promise(function (resolve, reject) {
+        debug("checkPeriodOpen(%d)",id);
         db.get(
             "SELECT closed FROM periods where rowid=$id",
             {$id:id},
             function(err,row) {
+                debug("checkPeriodOpen=>\n%o\n%o",err,row);
                 if (err) reject(err);
                 else resolve(((!row || row.closed === "N")))
             }

@@ -11,8 +11,9 @@ html
         link(rel='stylesheet', href='/stylesheets/grayscale.css')
         link(rel='stylesheet', href='/stylesheets/style.css')
     body#page-top(data-spy="scroll",data-target=".navbar-fixed-top")
-        include good-edit
         include oper-edit
+        include good-edit
+        include confirm-delete-dialog
         block content
         script(src='/bower_components/jquery/dist/jquery.min.js')
         script(src='/bower_components/bootstrap/dist/js/bootstrap.min.js')
