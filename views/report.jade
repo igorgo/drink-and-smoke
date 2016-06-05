@@ -1,0 +1,34 @@
+section#report.container-fluid.content-section.text-center
+    .row
+        .col-lg-8.col-lg-offset-2
+            h2 Отчёты
+    .row
+        .col-lg-4.center-block.form-inline
+            a#report-form-button-close.btn.btn-info(href='javascript:void(0)', style="margin-left:8px")
+                span.fa.fa-lock.rt(aria-hidden="true", style="margin-right:8px")
+                span Закрыть период
+            a#report-form-button-open.btn.btn-warning(href='javascript:void(0)', style="margin-left:8px")
+                span.fa.fa-unlock.rt(aria-hidden="true", style="margin-right:8px")
+                span Открыть период
+
+        .col-lg-4.form-inline
+            input#report-period.form-control.center-block.m-y-period
+        .col-lg-4.center-block
+            a#report-form-button-refresh.btn.btn-info(href='javascript:void(0)', style="margin-left:8px")
+                span.fa.fa-refresh.rt(aria-hidden="true", style="margin-right:8px")
+                span Обновить
+            a#report-form-button-export.btn.btn-info(href='javascript:void(0)', style="margin-left:8px")
+                span.fa.fa-floppy-o.rt(aria-hidden="true", style="margin-right:8px")
+                span Сохранить
+    .row
+        .col-lg-4.col-lg-offset-4
+            h4 Бухло
+    .row
+        .col-lg-12
+            table#table-report-drink.report-table.table-condensed
+    .row
+        .col-lg-4.col-lg-offset-4
+            h4 Курево
+    .row
+        .col-lg-12
+            table#table-report-smoke.report-table.table-condensed

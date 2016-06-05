@@ -24,6 +24,8 @@
     "bootstrap-combobox": "^1.1.7",
     "roboto-fontface": "^0.4.5",
     "bootstrap-validator": "^0.10.2",
-    "bootstrap-datepicker": "^1.6.1"
+    "moment": "^2.13.0",
+    "combodate": "^1.1.0",
+    "tableExport.jquery.plugin": "^1.5.1"
   }
 }

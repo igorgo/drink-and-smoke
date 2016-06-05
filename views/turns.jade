@@ -1,7 +1,28 @@
-section#turns.container.content-section.text-center
+section#turns.container-fluid.content-section.text-center
     .row
         .col-lg-8.col-lg-offset-2
             h2 Обороты
     .row
+        .col-lg-4.center-block.form-inline
+
+        .col-lg-4.form-inline
+            input#turns-period.form-control.center-block.m-y-period
+        .col-lg-4.center-block
+            a#turns-form-button-refresh.btn.btn-info(href='javascript:void(0)', style="margin-left:8px")
+                span.fa.fa-refresh.rt(aria-hidden="true", style="margin-right:8px")
+                span Обновить
+            a#turns-form-button-export.btn.btn-info(href='javascript:void(0)', style="margin-left:8px")
+                span.fa.fa-refresh.rt(aria-hidden="true", style="margin-right:8px")
+                span Сохранить
+    .row
         .col-lg-4.col-lg-offset-4
-            #turns-period.center-block
+            h4 Бухло
+    .row
+        .col-lg-12
+            table#table-turns-drink.turns-table.table-condensed
+    .row
+        .col-lg-4.col-lg-offset-4
+            h4 Курево
+    .row
+        .col-lg-12
+            table#table-turns-smoke.turns-table.table-condensed

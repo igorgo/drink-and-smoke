@@ -11,12 +11,71 @@ var dbGoods = require("../db/goods"),
     dbOpers = require("../db/opers"),
     dbPeriods = require("../db/periods"),
     dbProds = require("../db/prodcodes");
+dbTurns = require("../db/turns");
 
+router.post('/periods/close/:date', function (req, res, next) {
+    var period = {};
+    dbPeriods.getPeriodByDate(new Date(req.params.date), false)
+        .then(function (id) {
+            period.id = id;
+            return dbPeriods.closePeriod(period.id);
+        })
+        .then(function () {
+            return Promise.all([
+                dbPeriods.checkPeriodClosed(period.id),
+                dbPeriods.canClose(period.id),
+                dbPeriods.canOpen(period.id)
+            ]);
+        })
+        .then(function (v) {
+            period.closed = v[0];
+            period.canClose = v[1];
+            period.canOpen = v[2];
+            res.status(200).json(period);
+        })
+        .catch(next);
+});
 
-router.get('/periods/getbydate/:date', function (req, res, next) {
-    dbPeriods.getPeriodByDate(new Date(req.params.date))
-        .then(function (result) {
-            res.status(200).json(result)
+router.post('/periods/open/:date', function (req, res, next) {
+    var period = {};
+    dbPeriods.getPeriodByDate(new Date(req.params.date), false)
+        .then(function (id) {
+            period.id = id;
+            return dbPeriods.openPeriod(period.id);
+        })
+        .then(function () {
+            return Promise.all([
+                dbPeriods.checkPeriodClosed(period.id),
+                dbPeriods.canClose(period.id),
+                dbPeriods.canOpen(period.id)
+            ]);
+        })
+        .then(function (v) {
+            period.closed = v[0];
+            period.canClose = v[1];
+            period.canOpen = v[2];
+            res.status(200).json(period);
+        })
+        .catch(next);
+});
+
+router.get('/periods/:date', function (req, res, next) {
+    var period = {};
+
+    dbPeriods.getPeriodByDate(new Date(req.params.date), false)
+        .then(function (id) {
+            period.id = id;
+            return Promise.all([
+                dbPeriods.checkPeriodClosed(period.id),
+                dbPeriods.canClose(period.id),
+                dbPeriods.canOpen(period.id)
+            ]);
+        })
+        .then(function (v) {
+            period.closed = v[0];
+            period.canClose = v[1];
+            period.canOpen = v[2];
+            res.status(200).json(period);
         })
         .catch(next);
 });
@@ -67,7 +126,7 @@ router.put("/goods", function (req, res, next) {
 router.get("/operday/:type/:date", function (req, res, next) {
     var type = req.params.type;
     var date = new Date(req.params.date);
-    debug("GET /operday/%s/%s",type,date);
+    debug("GET /operday/%s/%s", type, date);
     dbOpers.getOpersByDate(date, type)
         .then(function (rows) {
             res.status(200).json(rows);
@@ -81,7 +140,7 @@ router.put("/opers/income", function (req, res, next) {
     var date = new Date(req.body.date),
         good = req.body.good,
         quant = req.body.quant;
-    debug("date : %s\ngood: %i\nquant: %f",date,good,quant);
+    debug("date : %s\ngood: %i\nquant: %f", date, good, quant);
     dbOpers.addIncome (date, good, quant)
         .then(dbOpers.getOperById)
         .then(function (row) {
@@ -95,7 +154,7 @@ router.put("/opers/outcome", function (req, res, next) {
     var date = new Date(req.body.date),
         good = req.body.good,
         quant = req.body.quant;
-    debug("date : %s\ngood: %i\nquant: %f",date,good,quant);
+    debug("date : %s\ngood: %i\nquant: %f", date, good, quant);
     dbOpers.addOutcome (date, good, quant)
         .then(dbOpers.getOperById)
         .then(function (row) {
@@ -110,7 +169,7 @@ router.post("/opers/:id", function (req, res, next) {
         date = new Date(req.body.date),
         good = req.body.good,
         quant = req.body.quant;
-    debug("id: %d\ndate : %s\ngood: %d\nquant: %f",id,date,good,quant);
+    debug("id: %d\ndate : %s\ngood: %d\nquant: %f", id, date, good, quant);
     dbOpers.modifyOper (id, date, good, quant)
         .then(dbOpers.getOperById)
         .then(function (row) {
@@ -125,7 +184,7 @@ router.post("/opers/:id", function (req, res, next) {
 router.delete("/opers/:id", function (req, res, next) {
     debug("DELETE data/opers");
     var id = req.params.id;
-    debug("id: %d",id);
+    debug("id: %d", id);
     dbOpers.deleteOper(id)
         .then(function (row) {
             res.status(200).end();
@@ -136,6 +195,30 @@ router.delete("/opers/:id", function (req, res, next) {
         });
 });
 
+router.get('/turns/:type/:date', function (req, res, next) {
+    var type = req.params.type;
+    var date = new Date(req.params.date);
+    debug("GET /turns/%s/%s", type, date);
+    dbTurns.buildGoodsTurnsByDate(date, type)
+        .then(function (rows) {
+            debug("TURNS BUILDED - %o", rows);
+            res.status(200).json(rows);
+        })
+        .catch(next);
+});
 
+router.get('/report/:type/:date', function (req, res, next) {
+    var type = req.params.type;
+    var date = new Date(req.params.date);
+    debug("GET /report/%s/%s", type, date);
+    dbTurns.buildProdReportByDate(date, type)
+        .then(function (rows) {
+            debug("REPORT BUILDED - %o", rows);
+            res.status(200).json(rows);
+        })
+        .catch(next);
+});
+
+router.get('/period');
 
 module.exports = router;

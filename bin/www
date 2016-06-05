@@ -34,7 +34,9 @@ checkDBfile()
         server.listen(port);
         server.on('error', onError);
         server.on('listening', onListening);
-
+        require('open')('http://localhost:3001/', function (err) {
+            if (err) throw process.exit(1);
+        });
     })
     .catch(function (err) {
         debug(err);

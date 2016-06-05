@@ -51,20 +51,33 @@ function getGoods() {
 function initPageObjects() {
     o.formIncome = $("#income-form");
     o.formIncome.date = o.formIncome.find("#income-date");
-    o.formIncome.good =  o.formIncome.find("#income-good-name");
-    o.formIncome.quant =  o.formIncome.find("#income-good-quant");
-    o.formIncome.add =  o.formIncome.find("#income-button-add-good");
+    o.formIncome.good = o.formIncome.find("#income-good-name");
+    o.formIncome.quant = o.formIncome.find("#income-good-quant");
+    o.formIncome.add = o.formIncome.find("#income-button-add-good");
     o.tableIncome = $("#income-table");
 
     o.formOutcome = $("#outcome-form");
     o.formOutcome.date = o.formOutcome.find("#outcome-date");
-    o.formOutcome.good =  o.formOutcome.find("#outcome-good-name");
-    o.formOutcome.quant =  o.formOutcome.find("#outcome-good-quant");
-    o.formOutcome.add =  o.formOutcome.find("#outcome-button-add-good");
+    o.formOutcome.good = o.formOutcome.find("#outcome-good-name");
+    o.formOutcome.quant = o.formOutcome.find("#outcome-good-quant");
+    o.formOutcome.add = o.formOutcome.find("#outcome-button-add-good");
     o.tableOutcome = $("#outcome-table");
 
     o.formTurns = $('section#turns');
     o.formTurns.period = o.formTurns.find('#turns-period');
+    o.formTurns.tableDrink = o.formTurns.find('#table-turns-drink');
+    o.formTurns.tableSmoke = o.formTurns.find('#table-turns-smoke');
+    o.formTurns.refreshButton = o.formTurns.find('#turns-form-button-refresh');
+    o.formTurns.exportButton = o.formTurns.find('#turns-form-button-export');
+
+    o.formReport = $('section#report');
+    o.formReport.period = o.formReport.find('#report-period');
+    o.formReport.tableDrink = o.formReport.find('#table-report-drink');
+    o.formReport.tableSmoke = o.formReport.find('#table-report-smoke');
+    o.formReport.refreshButton = o.formReport.find('#report-form-button-refresh');
+    o.formReport.closeButton = o.formReport.find('#report-form-button-close');
+    o.formReport.openButton = o.formReport.find('#report-form-button-open');
+    o.formReport.exportButton = o.formReport.find('#report-form-button-export');
 
     o.modalDelete = $("#confirm-delete");
     o.modalDelete.ok = o.modalDelete.find("#conf-del-ok");
@@ -93,6 +106,10 @@ function initPageObjects() {
 
     o.btnAddGood = $(".add-good-button");
     o.combosGoods = $(".good-combo");
+    o.turnsTables = $(".turns-table");
+    o.reportTables = $(".report-table");
+    o.combosPeriod = $(".m-y-period");
+    o.exitButton = $('#app-exit');
 }
 
 function initNavigation() {
@@ -217,6 +234,108 @@ function initTables() {
                     ].join('');
 
                 }
+            }
+        ]
+    });
+    o.turnsTables.bootstrapTable({
+        locale: "ru_RU",
+        classes: "table",
+        columns: [
+            {
+                field: 'sGood',
+                title: 'Товар',
+                align: 'left',
+                halign: 'center',
+                width: '40%'
+            },
+            {
+                field: 'start',
+                title: 'На начало',
+                align: 'right',
+                halign: 'center',
+                width: '15%',
+                class: 'mono'
+            },
+            {
+                field: 'debet',
+                title: 'Приход',
+                align: 'right',
+                halign: 'center',
+                width: '15%',
+                class: 'mono'
+            },
+            {
+                field: 'credit',
+                title: 'Расход',
+                align: 'right',
+                halign: 'center',
+                width: '15%',
+                class: 'mono'
+            },
+            {
+                field: 'finish',
+                title: 'На конец',
+                align: 'right',
+                halign: 'center',
+                width: '15%',
+                class: 'mono'
+            }
+        ]
+    });
+    o.reportTables.bootstrapTable({
+        locale: "ru_RU",
+        classes: "table",
+        columns: [
+            {
+                field: 'code',
+                title: 'Код продукції',
+                align: 'center',
+                halign: 'center',
+                width: '10%'
+            },
+            {
+                field: 'name',
+                title: 'Вид продукції ',
+                align: 'left',
+                halign: 'center',
+                width: '40%'
+            },
+            {
+                field: 'start',
+                title: 'Залишок на початок звітного місяця',
+                align: 'right',
+                halign: 'center',
+                width: '10%',
+                class: 'mono'
+            },
+            {
+                field: 'debet',
+                title: 'Всього надійшло продукції у звітному місяці',
+                align: 'right',
+                halign: 'center',
+                width: '10%',
+                class: 'mono'
+            },
+            {
+                field: 'credit',
+                title: 'Всього реалізовано продукції у звітному місяці',
+                align: 'right',
+                halign: 'center',
+                width: '10%',
+                class: 'mono'
+            },
+            {
+                field: 'finish',
+                title: 'Залишок на кінець звітного місяця',
+                align: 'right',
+                halign: 'center',
+                width: '10%',
+                class: 'mono'
+            },
+            {
+                title: 'Примітки',
+                halign: 'center',
+                width: '10%'
             }
         ]
     });
@@ -424,7 +543,8 @@ function bindEvents() {
             dataType: 'JSON'
         }).done(function (resp) {
             if (o.modalOper.data("operType") === "I") o.tableIncome.trigger("dataChange");
-            else o.tableOutcome.trigger("dataChange");;
+            else o.tableOutcome.trigger("dataChange");
+            ;
             o.modalOper.modal('hide');
         }).fail(function (resp) {
             console.log(resp);
@@ -432,6 +552,7 @@ function bindEvents() {
         });
 
     });
+
     o.modalDelete.ok.bind("click", function () {
         console.log(o.modalDelete.data('row'));
         var id = o.modalDelete.data('row').id;
@@ -451,6 +572,136 @@ function bindEvents() {
     o.modalDelete.cancel.bind("click", function () {
         o.modalDelete.modal('hide');
     });
+
+    o.formTurns.period.bind('change', function (e) {
+        o.turnsTables.trigger('dataChange', $(this).combodate('getValue'));
+    });
+    o.turnsTables.bind("dataChange", function (e, date) {
+        var table = $(this);
+        var type = (table[0].id === "table-turns-drink") ? 'A' : 'T';
+        if (date) {
+            $.get(
+                '/data/turns/' + type + '/' + date
+            ).done(function (data) {
+                table.bootstrapTable("load", data);
+            });
+        } else {
+            table.bootstrapTable("removeAll");
+        }
+    });
+    o.formTurns.refreshButton.bind('click', function () {
+        o.formTurns.period.trigger('change');
+    });
+
+    o.formReport.bind('refreshButtonState', function (e, period) {
+        if (period.closed) {
+            o.formReport.openButton.removeClass('hidden');
+            o.formReport.closeButton.addClass('hidden');
+            o.formReport.refreshButton.addClass('disabled');
+            o.formReport.exportButton.removeClass('disabled');
+        } else {
+            o.formReport.closeButton.removeClass('hidden');
+            o.formReport.openButton.addClass('hidden');
+            o.formReport.refreshButton.removeClass('disabled');
+            o.formReport.exportButton.addClass('disabled');
+        }
+        if (period.canClose) o.formReport.closeButton.removeClass('disabled');
+        else o.formReport.closeButton.addClass('disabled');
+        if (period.canOpen) o.formReport.openButton.removeClass('disabled');
+        else o.formReport.openButton.addClass('disabled');
+    });
+
+    o.formReport.period.bind('change', function (e) {
+        var d = $(this).combodate('getValue');
+        o.reportTables.trigger('dataChange', d);
+        $.get('/data/periods/' + d).done(function (period) {
+            o.formReport.trigger('refreshButtonState',period);
+        });
+    });
+    o.reportTables.bind("dataChange", function (e, date) {
+        var table = $(this);
+        var type = (table[0].id === "table-report-drink") ? 'A' : 'T';
+        if (date) {
+            $.get(
+                '/data/report/' + type + '/' + date
+            ).done(function (data) {
+                table.bootstrapTable("load", data);
+            });
+        } else {
+            table.bootstrapTable("removeAll");
+        }
+    });
+/*    o.turnsTables.bind("click-cell.bs.table", function (a,b,c,d,e) {
+        console.log('a:%o\n,b:%s\n,c:%s\n,d:%o\n,e:%o',a,b,c,d,e);
+    });*/
+    o.formReport.refreshButton.bind('click', function () {
+        o.formReport.period.trigger('change');
+    });
+    o.formReport.closeButton.bind('click', function () {
+        var d = o.formReport.period.combodate('getValue');
+        $.post('/data/periods/close/' + d).done(function (period) {
+            o.formReport.trigger('refreshButtonState',period);
+        });
+    });
+    o.formReport.openButton.bind('click', function () {
+        var d = o.formReport.period.combodate('getValue');
+        $.post('/data/periods/open/' + d).done(function (period) {
+            o.formReport.trigger('refreshButtonState',period);
+        });
+    });
+
+    o.formReport.exportButton.bind('click', function () {
+        o.formReport.tableDrink.tableExport({
+            type:'doc',
+            fileName:'alco'
+        });
+        o.formReport.tableSmoke.tableExport({
+            type:'doc',
+            fileName:'tobacco'
+        });
+    });
+
+
+
+    o.formTurns.exportButton.bind('click', function () {
+        var html, link, blob, url, css;
+
+        // EU A4 use: size: 841.95pt 595.35pt;
+        // US Letter use: size:11.0in 8.5in;
+
+        css = (
+            '<style>' +
+            '@page WordSection1{size: 841.95pt 595.35pt;mso-page-orientation: landscape;}' +
+            'div.WordSection1 {page: WordSection1;}' +
+            'table{border-collapse:collapse;}td{border:1px gray solid;width:5em;padding:2px;}'+
+            '</style>'
+        );
+
+        html = o.formTurns.tableDrink[0].outerHTML;
+        console.log(html);
+        blob = new Blob(['\ufeff', css + html], {
+            type: 'application/msword'
+        });
+        url = URL.createObjectURL(blob);
+        link = document.createElement('A');
+        link.href = url;
+        // Set default file name.
+        // Word will append file extension - do not add an extension here.
+        link.download = 'Document';
+        document.body.appendChild(link);
+        if (navigator.msSaveOrOpenBlob ) navigator.msSaveOrOpenBlob( blob, 'Document.doc'); // IE10-11
+        else link.click();  // other browsers
+        document.body.removeChild(link);
+    });
+    o.exitButton.bind('click', function () {
+        $.ajax({
+            type: 'POST',
+            url: '/logoff'
+        }).done(function(){
+            window.location.href = "about:blank";
+            window.close();
+        });
+    });
 }
 
 $(function () {
@@ -469,13 +720,15 @@ $(function () {
         .catch (console.error);
     o.formIncome.date.val(new Date().yyyymmdd()).trigger("change");
     o.formOutcome.date.val(new Date().yyyymmdd()).trigger("change");
-    o.formTurns.period.datepicker({
-        format: "mm.yyyy",
-        startView: 1,
-        minViewMode: 1,
-        maxViewMode: 2,
-        language: "ru"
+    o.combosPeriod.combodate({
+        template: 'MMM YYYY',
+        format: 'YYYY-MM-DD',
+        customClass: 'form-control',
+        minYear: 2016,
+        maxYear: 2025,
+        yearDescending: false
     });
+    o.combosPeriod.combodate('setValue',moment().startOf('month'));
 });
 
 

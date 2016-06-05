@@ -1,6 +1,6 @@
 {
   "name": "drink-and-smoke",
-  "version": "0.0.0",
+  "version": "0.9.0",
   "private": true,
   "scripts": {
     "start": "node ./bin/www"
@@ -13,6 +13,7 @@
     "jade": "~1.11.0",
     "morgan": "~1.6.1",
     "node-cache": "^3.2.1",
+    "open": "0.0.5",
     "serve-favicon": "~2.3.0",
     "sqlite3": "^3.1.4"
   }

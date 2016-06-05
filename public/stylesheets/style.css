@@ -1,5 +1,5 @@
 
-body {
+.intro-body {
   text-shadow: 2px 2px 8px #0f0f0f;
 }
 
@@ -8,7 +8,9 @@ body {
     background-color: #eee;
     border: 2px solid #555;
     color: #444;
+    /*
     text-shadow: 2px 2px 8px #efefef;
+    */
 }
 
 .modal-header .close {
@@ -29,18 +31,34 @@ body {
 }
 
 section#income {
-     background: url(../img/income-bg.jpg) no-repeat bottom center scroll;
+    /*
+    background: url(../img/income-bg.jpg) no-repeat bottom center scroll;
     background-size: cover;
+    */
     min-height: 100%;
-    /*background-color: rgba(30, 66, 130, 0.86);*/
      border-radius: 10px;
  }
 
 section#outcome {
+    /*
     background: url(../img/outcome-bg.jpg) no-repeat bottom center scroll;
     background-size: cover;
+    */
     min-height: 100%;
-     /*background-color: rgba(30, 66, 130, 0.86);*/
+ }
+section#turns {
+    /*
+    background: url(../img/turns-bg.jpg) no-repeat bottom center scroll;
+    background-size: cover;
+    */
+    min-height: 100%;
+ }
+section#report {
+    /*
+    background: url(../img/report-bg.jpg) no-repeat bottom center scroll;
+    background-size: cover;
+    */
+    min-height: 100%;
  }
 
 .no-gutter > [class*='col-'] {
@@ -64,11 +82,19 @@ section#outcome {
 }
 
 section .form-control{
-    background-color: #524328;
+    background-color: #555;
     color: #FFFBFB;
 }
 
 .datepicker-inline {
     margin-right: auto;
     margin-left: auto;
+}
+
+.mono {
+    font-family: PTMonoRegular,"Helvetica Neue",Helvetica,Arial,sans-serif;
+}
+
+.fixed-table-container tbody td .th-inner, .fixed-table-container thead th .th-inner {
+    white-space: pre-line;
 }

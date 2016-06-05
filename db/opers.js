@@ -32,21 +32,6 @@ const SQL_GET_OPERS_SELECT =
 
 
 /**
- * @typedef {Object} GoodsSubTotals
- * @property {Number} good_id
- * @property {String} good_name
- * @property {Number} sub_quant
- */
-
-/**
- * @typedef {Object} CodesSubTotals
- * @property {Number} prod_id
- * @property {String} prod_code
- * @property {String} prod_name
- * @property {Number} sub_quant
- */
-
-/**
  * Добавление прихода
  * @param date
  * @param good
@@ -198,6 +183,18 @@ function modifyOper(id, date, good, quant) {
 }
 
 /**
+ * @typedef {Object} GoodsSubTotals
+ * @property {Number} ngood
+ * @property {String} sgood
+ * @property {Number} quant
+ * @property {Number} volume
+ * @property {Number} nprodcode
+ * @property {String} sprodcode
+ * @property {String} sprodname
+ * @property {String} sprodtype
+ */
+
+/**
  * Cчитывание операций за период c группировкой по товару
  * @param period
  * @param opertype -- тип операции (приход/расход)
@@ -206,19 +203,28 @@ function modifyOper(id, date, good, quant) {
  */
 function getTotalOpersByGoodsOnPeriod(period, opertype, prodtype) {
     return new Promise(function (resolve, reject) {
-        db.all(
-            "SELECT o.good AS good_id, g.name AS good_name, sum(o.quant) AS sub_quant " +
-            "  FROM opers o " +
+        var SELECT_CLAUSE = "SELECT o.good AS ngood, g.name AS sgood, sum(o.quant) AS quant, " +
+            "g.volume AS volume, g.prodtype AS nprodcode, coalesce(p.subcode,p.code) AS sprodcode, " +
+            "p.name AS sprodname, p.ptype AS sprodtype";
+        var FROM_CLAUSE = "  FROM opers o " +
             "    INNER JOIN goods g on o.good = g.rowid " +
-            "    INNER JOIN prodcodes p on g.prodtype = p.rowid " +
-            "  WHERE o.period=$period AND o.type=$opertype AND p.ptype=$prodtype " +
-            "  GROUP BY o.good, g.name",
-            {
-                $period: period,
-                $opertype: opertype,
-                $prodtype: prodtype
-            },
-            function (err, rows) {
+            "    INNER JOIN prodcodes p on g.prodtype = p.rowid ";
+        var WHERE_CLOSE = (prodtype) ?
+            "  WHERE o.period=$period AND o.type=$opertype AND p.ptype=$prodtype " :
+            "  WHERE o.period=$period AND o.type=$opertype ";
+        var GROUP_CLAUSE = "  GROUP BY o.good, g.name, g.volume, g.prodtype, p.subcode, p.code, p.name, p.ptype";
+        var sql = [SELECT_CLAUSE, FROM_CLAUSE, WHERE_CLOSE, GROUP_CLAUSE].join(' ');
+        var params = (prodtype) ?
+        {
+            $period: period,
+            $opertype: opertype,
+            $prodtype: prodtype
+        } :
+        {
+            $period: period,
+            $opertype: opertype
+        };
+        db.all(sql, params, function (err, rows) {
                 if (err) reject(err);
                 else resolve(rows);
             }
@@ -234,6 +240,14 @@ function getTotalOpersByGoodsOnPeriod(period, opertype, prodtype) {
 function _sortByCode(a, b) {
     return a.prod_code.localeCompare(b.prod_code);
 }
+
+/**
+ * @typedef {Object} CodesSubTotals
+ * @property {Number} prod_id
+ * @property {String} prod_code
+ * @property {String} prod_name
+ * @property {Number} sub_quant
+ */
 
 /**
  * Считывание операций за период с группировкой по коду продукта (количество в литрах/штуках)
@@ -268,13 +282,20 @@ function getTotalOpersByCodesOnPeriod(period, opertype, prodtype) {
  */
 function getTotalOpersByMainCodesOnPeriod(period, opertype, prodtype) {
     return new Promise(function (resolve, reject) {
+        var sql =
+            " SELECT PR.rowid AS prod_id, GR.prod_code, PR.name AS prod_name, GR.sub_quant " +
+            " FROM " +
+            " ( " +
+            " SELECT p.code AS prod_code, sum(o.quant*g.volume) AS sub_quant " +
+            "   FROM opers o " +
+            "     INNER JOIN goods g on o.good = g.rowid " +
+            "     INNER JOIN prodcodes p on g.prodtype = p.rowid " +
+            "   WHERE o.period=$period AND o.type=$opertype AND p.ptype=$prodtype " +
+            "   GROUP BY p.code " +
+            " ) GR INNER JOIN prodcodes PR on GR.prod_code = PR.CODE AND PR.subcode IS NULL ";
+
         db.all(
-            "SELECT p.rowid AS prod_id, p.code AS prod_code, p.name AS prod_name, sum(o.quant*g.volume) AS sub_quant " +
-            "  FROM opers o " +
-            "    INNER JOIN goods g on o.good = g.rowid " +
-            "    INNER JOIN prodcodes p on g.prodtype = p.rowid " +
-            "  WHERE o.period=$period AND o.type=$opertype AND p.ptype=$prodtype " +
-            "  GROUP BY p.rowid, p.code, p.name",
+            sql,
             {
                 $period: period,
                 $opertype: opertype,
@@ -298,7 +319,7 @@ function getTotalOpersByMainCodesOnPeriod(period, opertype, prodtype) {
 function getTotalOpersBySubCodesOnPeriod(period, opertype, prodtype) {
     return new Promise(function (resolve, reject) {
         db.all(
-            "SELECT p.rowid AS prod_id, p.subcode AS prod_code, 'у тому числі ' || p.name AS prod_name, sum(o.quant*g.volume) AS sub_quant " +
+            "SELECT p.rowid AS prod_id, p.subcode AS prod_code, 'у тому числі ' || p.name AS prod_name, 'N' AS main_sign, sum(o.quant*g.volume) AS sub_quant " +
             "  FROM opers o " +
             "    INNER JOIN goods g on o.good = g.rowid " +
             "    INNER JOIN prodcodes p on g.prodtype = p.rowid " +

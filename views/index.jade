@@ -22,6 +22,10 @@ block content
                         a.page-scroll(href="#outcome") Расход
                     li
                         a.page-scroll(href="#turns") Обороты
+                    li
+                        a.page-scroll(href="#report") Отчеты
+                    li
+                        a#app-exit(href="javascript:void(0)") Выход
     header.intro
         .intro-body
             .container
@@ -29,11 +33,10 @@ block content
                     .col-md-8.col-md-offset-2
                         h1.brand-heading Бухло и Курево
                         p.intro-text Засіб для складання звітів про обсяги придбання та реалізації алкогольних напоїв та тютюнових виробів у роздрібній мережі
+                        p Copyright © igor-go 2016
                         a.btn.btn-circle.page-scroll(href="#income")
                             i.fa.fa-angle-double-down.animated
     include income
     include outcome
     include turns
-    footer
-        .container.text-center
-            p Copyright © igor-go 2016
+    include report

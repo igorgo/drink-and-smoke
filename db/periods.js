@@ -20,6 +20,7 @@ const META = {
  * @returns {Promise}
  */
 function closePeriod(id) {
+    debug('closePeriod(%d)', id);
     return new Promise(function (resolve, reject) {
         canClose(id)
             .then(function (can) {
@@ -27,6 +28,32 @@ function closePeriod(id) {
                 else {
                     db.run(
                         "UPDATE periods SET closed='Y' where rowid=$id",
+                        {$id: id},
+                        function (err) {
+                            if (err) reject(err);
+                            else return require("./remns").makeRemnsOnNextPeriod(id);
+                        }
+                    );
+                }
+            })
+            .then(resolve)
+            .catch(reject);
+    });
+}
+/**
+ * Открытие периода
+ * @param id
+ * @returns {Promise}
+ */
+function openPeriod(id) {
+    debug('openPeriod(%d)', id);
+    return new Promise(function (resolve, reject) {
+        canOpen(id)
+            .then(function (can) {
+                if (!can) reject(new Error("Невозможно открыть период, т.к. следующий период закрыт."));
+                else {
+                    db.run(
+                        "UPDATE periods SET closed='N' where rowid=$id",
                         {$id: id},
                         function (err) {
                             if (err) reject(err);
@@ -45,11 +72,55 @@ function closePeriod(id) {
  * @returns {Promise<Boolean|Error>}
  */
 function canClose(id) {
+    debug('canClose(%d)', id);
     return new Promise(function (resolve, reject) {
-        findPreviousPeriodById(id)
-            .then(checkPeriodClosed)
+        checkPeriodClosed(id)
             .then(function (isClosed) {
-                resolve(isClosed);
+                if (isClosed) {
+                    resolve(false);
+                    return;
+                }
+                findPreviousPeriodById(id)
+                    .then(function (prevId) {
+                        if (prevId == 0) {
+                            resolve(true);
+                            return;
+                        }
+                        checkPeriodClosed(prevId)
+                            .then(function (isClosed) {
+                                resolve(isClosed)
+                            })
+                    })
+            })
+            .catch(reject);
+    });
+}
+
+/**
+ * Проверка открываемости периода
+ * @param id
+ * @returns {Promise<Boolean|Error>}
+ */
+function canOpen(id) {
+    debug('canOpen(%d)', id);
+    return new Promise(function (resolve, reject) {
+        checkPeriodOpen(id)
+            .then(function (isOpen) {
+                if (isOpen) {
+                    resolve(false);
+                    return;
+                }
+                findNextPeriodById(id, false)
+                    .then(function (nextId) {
+                        if (nextId == 0) {
+                            resolve(true);
+                            return;
+                        }
+                        checkPeriodOpen(nextId)
+                            .then(function (isOpen) {
+                                resolve(isOpen);
+                            })
+                    })
             })
             .catch(reject);
     });
@@ -61,11 +132,12 @@ function canClose(id) {
  * @returns {Promise<Boolean|Error>}
  */
 function checkPeriodClosed(id) {
+    debug('checkPeriodClosed(%d)', id);
     return new Promise(function (resolve, reject) {
         db.get(
             "SELECT closed FROM periods where rowid=$id",
-            {$id:id},
-            function(err,row) {
+            {$id: id},
+            function (err, row) {
                 if (err) reject(err);
                 else resolve(((!row || row.closed === "Y")))
             }
@@ -80,6 +152,7 @@ function checkPeriodClosed(id) {
  * @returns {Promise<Number|Error>}
  */
 function getPeriodByDate(date, newIfNotExists) {
+    debug('getPeriodByDate(%s, %s)', date, newIfNotExists);
     return new Promise(function (resolve, reject) {
         getPeriodByYearAndMonth(date.getFullYear(), date.getMonth() + 1, newIfNotExists)
             .then(resolve)
@@ -95,6 +168,7 @@ function getPeriodByDate(date, newIfNotExists) {
  * @returns {Promise<Number|Error>}
  */
 function getPeriodByYearAndMonth(year, month, newIfNotExists) {
+    debug('getPeriodByYearAndMonth(%d, %d, %s)', year, month, newIfNotExists);
     return new Promise(function (resolve, reject) {
         db.get(
             [
@@ -137,6 +211,7 @@ function getPeriodById(id) {
      * @param {number} year
      * @param {number} month
      */
+    debug('getPeriodById(%d)', id);
     return new Promise(function (resolve, reject) {
         db.get (
             "SELECT year, month FROM periods where rowid = $id",
@@ -144,7 +219,7 @@ function getPeriodById(id) {
             function (err, row) {
                 if (err) reject(err);
                 else {
-                    if (row) resolve(row.year, row.month);
+                    if (row) resolve(row);
                     else reject(new Error("Период не найден"));
                 }
             });
@@ -157,6 +232,7 @@ function getPeriodById(id) {
  * @returns {Promise<Number|Error>}
  */
 function findPreviousPeriodById(id) {
+    debug('findPreviousPeriodById(%d)', id);
     return new Promise(function (resolve, reject) {
         getPeriodById(id)
             .then(findPreviousPeriod)
@@ -167,11 +243,14 @@ function findPreviousPeriodById(id) {
 
 /**
  * Поиск id предыдущего периода по месяцу и году (0 если не найден)
- * @param year
- * @param month
+ * @param p.year
+ * @param p.month
  * @returns {Promise<Number|Error>}
  */
-function findPreviousPeriod(year, month) {
+function findPreviousPeriod(p) {
+    debug('findPreviousPeriod(%d, %d)', p.year, p.month);
+    var month = p.month;
+    var year = p.year;
     var pMonth, pYear;
     if (month == 1) {
         pMonth = 12;
@@ -186,12 +265,16 @@ function findPreviousPeriod(year, month) {
 /**
  * Поиск id следующего периода по id (0 если не найден)
  * @param id
+ * @param newIfNotExists
  * @returns {Promise<Number|Error>}
  */
-function findNextPeriodById(id) {
+function findNextPeriodById(id, newIfNotExists) {
+    debug('findNextPeriodById(%d, %s)', id, newIfNotExists);
     return new Promise(function (resolve, reject) {
         getPeriodById(id)
-            .then(findNextPeriod)
+            .then(function (p) {
+                return findNextPeriod(p.year, p.month, newIfNotExists);
+            })
             .then(resolve)
             .catch(reject);
     });
@@ -201,9 +284,11 @@ function findNextPeriodById(id) {
  * Поиск id следующего периода по месяцу и году (0 если не найден)
  * @param year
  * @param month
+ * @param newIfNotExists
  * @returns {Promise<Number|Error>}
  */
-function findNextPeriod(year, month) {
+function findNextPeriod(year, month, newIfNotExists) {
+    debug('findNextPeriod(%d, %d, %s)', year, month, newIfNotExists);
     var pMonth, pYear;
     if (month == 12) {
         pMonth = 1;
@@ -212,7 +297,7 @@ function findNextPeriod(year, month) {
         pMonth = month + 1;
         pYear = year;
     }
-    return getPeriodByYearAndMonth(pYear, pMonth);
+    return getPeriodByYearAndMonth(pYear, pMonth, newIfNotExists);
 }
 
 /**
@@ -222,6 +307,7 @@ function findNextPeriod(year, month) {
  * @returns {Promise<Number|Error>}
  */
 function addPeriod(year, month) {
+    debug('addPeriod(%d, %d)', year, month);
     return new Promise(function (resolve, reject) {
         debug("Adding a new period for %s.%s", month, year);
         db.run(
@@ -231,7 +317,7 @@ function addPeriod(year, month) {
                 [
                     META.COLUMNS.YEAR,
                     META.COLUMNS.MONTH,
-                    META.COLUMNS.CLOSED,
+                    META.COLUMNS.CLOSED
                 ].join(","),
                 ") VALUES ($year, $month, 'N')"
             ].join(" "),
@@ -248,59 +334,18 @@ function addPeriod(year, month) {
 }
 
 /**
- * Открытие периода
- * @param id
- * @returns {Promise}
- */
-function openPeriod(id) {
-    return new Promise(function (resolve, reject) {
-        canOpen(id)
-            .then(function (can) {
-                if (!can) reject(new Error("Невозможно открыть период, т.к. следующий период закрыт."));
-                else {
-                    db.run(
-                        "UPDATE periods SET closed='N' where rowid=$id",
-                        {$id: id},
-                        function (err) {
-                            if (err) reject(err);
-                            else resolve();
-                        }
-                    );
-                }
-            })
-            .catch(reject);
-    });
-}
-
-/**
- * Проверка открываемости периода
- * @param id
- * @returns {Promise<Boolean|Error>}
- */
-function canOpen(id) {
-    return new Promise(function (resolve, reject) {
-        findNextPeriodById(id)
-            .then(checkPeriodOpen)
-            .then(function (isOpen) {
-                resolve(isOpen);
-            })
-            .catch(reject);
-    });
-}
-
-/**
  * Проверка открытости периода по id (если не найден считаем открытым)
  * @param id
  * @returns {Promise<Boolean|Error>}
  */
 function checkPeriodOpen(id) {
+    debug('checkPeriodOpen(%d)', id);
     return new Promise(function (resolve, reject) {
-        debug("checkPeriodOpen(%d)",id);
+        debug("checkPeriodOpen(%d)", id);
         db.get(
             "SELECT closed FROM periods where rowid=$id",
-            {$id:id},
-            function(err,row) {
-                debug("checkPeriodOpen=>\n%o\n%o",err,row);
+            {$id: id},
+            function (err, row) {
                 if (err) reject(err);
                 else resolve(((!row || row.closed === "N")))
             }
