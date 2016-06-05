@@ -4,9 +4,7 @@
  * Module dependencies.
  */
 
-var app = require('../app');
 var debug = require('debug')('drink-and-smoke:server');
-var http = require('http');
 
 
 
@@ -14,8 +12,6 @@ var http = require('http');
  * Get port from environment and store in Express.
  */
 
-var port = normalizePort(process.env.PORT || '3001');
-app.set('port', port);
 
 /**
  * Create HTTP server.
@@ -23,9 +19,16 @@ app.set('port', port);
 
 var server;
 
+var port = normalizePort(process.env.PORT || '3001');
+
 
 checkDBfile()
     .then(function () {
+        var app = require('../app');
+        var http = require('http');
+
+        app.set('port', port);
+
         server = http.createServer(app);
         /**
          * Listen on provided port, on all network interfaces.
