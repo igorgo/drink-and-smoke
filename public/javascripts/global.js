@@ -2,6 +2,8 @@
  * Created by igorgo on 27.05.2016.
  */
 
+var scrollPos;
+
 Date.prototype.yyyymmdd = function () {
     var yyyy = this.getFullYear().toString();
     var mm = (this.getMonth() + 1).toString(); // getMonth() is zero-based
@@ -133,13 +135,13 @@ function initNavigation() {
     });
 
     // jQuery for page scrolling feature - requires jQuery Easing plugin
-    $('a.page-scroll').bind('click', function (event) {
+/*    $('a.page-scroll').bind('click', function (event) {
         var $anchor = $(this);
         $('html, body').stop().animate({
             scrollTop: $($anchor.attr('href')).offset().top
         }, 1500, 'easeInOutExpo');
         event.preventDefault();
-    });
+    });*/
 }
 
 function initTables() {
@@ -350,6 +352,7 @@ function bindEvents() {
         elc.clearElement();
     });
     o.formGood.prodCode.bind("fillOptions", function (event) {
+
         var el = $(this);
         el.find("option").remove().end();
         el.append($("<option></option>"));
@@ -366,6 +369,7 @@ function bindEvents() {
                 .text(value.code + " - " + value.name));
         });
         el.data('combobox').refresh();
+        scrollPos = $(window).scrollTop();
     });
     o.combosGoods.bind("resetValue", function (event) {
         var elc = $(this).data('combobox');
@@ -398,12 +402,25 @@ function bindEvents() {
     o.btnAddGood.bind("click", function () {
         o.modalGood.modal("show");
     });
+    o.modalGood.bind("shown.bs.modal", function () {
+        scrollPos = $('body').scrollTop();
+        $('body').css({
+            overflow: 'hidden',
+            position: 'fixed',
+            top : -scrollPos
+        });
+    });
     o.modalGood.bind("hidden.bs.modal", function () {
         o.formGood.validator('destroy');
         o.formGood.errMsg.text("");
         o.formGood.prodCode.trigger("resetValue");
         o.formGood.name.val("");
         o.formGood.volume.val("0");
+        $('body').css({
+            overflow: '',
+            position: '',
+            top: ''
+        }).scrollTop(scrollPos);
     });
     o.formGood.cancel.bind("click", function () {
         o.modalGood.modal('hide');
@@ -508,6 +525,12 @@ function bindEvents() {
     });
     o.modalOper.bind("shown.bs.modal", function () {
         var typeText = (o.modalOper.data("operType") === "I") ? 'прихода' : 'расхода';
+        scrollPos = $('body').scrollTop();
+        $('body').css({
+            overflow: 'hidden',
+            position: 'fixed',
+            top : -scrollPos
+        });
         o.formOper.title.text('Исправление ' + typeText);
         o.formOper.date.val(o.modalOper.data('date'));
         o.formOper.good.trigger('setValue', o.modalOper.data('row').ngood);
@@ -520,6 +543,11 @@ function bindEvents() {
         o.formOper.good.trigger("resetValue");
         o.formOper.date.val("");
         o.formOper.quant.val("");
+        $('body').css({
+            overflow: '',
+            position: '',
+            top: ''
+        }).scrollTop(scrollPos);
     });
     o.formOper.cancel.bind("click", function () {
         o.modalOper.modal('hide');
